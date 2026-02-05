@@ -63,7 +63,7 @@ export default function Sidebar({ activeSection, setActiveSection, menuItems }) 
             <img 
               src='/assets/alebrije.png' 
               alt='Alebrije Logo' 
-              className='w-32 h-32 object-contain'
+              className='w-50 h-50 object-contain'
             />
           </div>
         </div>

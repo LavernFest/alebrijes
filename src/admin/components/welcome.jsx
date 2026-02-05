@@ -33,7 +33,7 @@ export default function WelcomeSection({ managementCards, onCardClick }) {
         </button>
       </div>
 
-      {/* Decorative Alebrije - Hidden on mobile */}
+      {/*  Alebrije Oculto en mobil */}
       <div className="hidden sm:flex justify-end mt-6 lg:mt-8">
         <div className="float-animation" style={{ animationDelay: '1s' }}>
           <img 
