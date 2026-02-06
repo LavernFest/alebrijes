@@ -4,7 +4,6 @@ import Hero from './components/hero';
 import Categories from './components/categories';
 import FeaturedProducts from './components/featured-products';
 import Footer from './components/footer';
-import Map from './components/map';
 
 export default function LandingPage() {
   return (
@@ -31,8 +30,11 @@ export default function LandingPage() {
       </section>
 
       <FeaturedProducts />
-
-      <Map/>
+          <section className="bg-[#263324] py-12 sm:py-16 px-6" >
+            <div className="max-w-5xl mx-auto">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl text-center text-white leading-relaxed font-['Lobster_Two',cursive] italic">MAPA</h2>
+            </div>
+          </section>
 
       <Footer />
     </div>
