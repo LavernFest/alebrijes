@@ -11,7 +11,7 @@ export default function FormActions({ onCancel, onSubmit, cancelText = 'Cancelar
       </button>
       <button
         onClick={onSubmit}
-        className="flex-1 bg-gradient-to-r from-[#6E2594] to-[#FF0063] hover:from-[#5a1d7a] hover:to-[#d4004f] text-white font-bold py-4 px-8 rounded-2xl text-lg sm:text-xl transition-all shadow-lg"
+        className="flex-1 bg-[#6E2594] hover:bg-[#5a1d7a] text-white font-bold py-4 px-8 rounded-2xl text-lg sm:text-xl transition-all shadow-lg"
       >
         {submitText}
       </button>

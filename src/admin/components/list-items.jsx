@@ -9,13 +9,13 @@ export default function ListItem({ name, onEdit, onDelete }) {
       <div className="flex gap-3">
         <button
           onClick={onEdit}
-          className="bg-gradient-to-r from-[#FFA414] to-[#FF8800] hover:from-[#ff9000] hover:to-[#ff7700] text-white font-bold py-3 px-8 rounded-xl text-base sm:text-lg transition-all shadow-md"
+          className="bg-[#FFA414] hover:bg-[#ff9000] text-white font-bold py-3 px-8 rounded-xl text-base sm:text-lg transition-all shadow-md"
         >
           Editar
         </button>
         <button
           onClick={onDelete}
-          className="bg-gradient-to-r from-[#FF0063] to-[#d4004f] hover:from-[#e0005a] hover:to-[#b80044] text-white font-bold py-3 px-8 rounded-xl text-base sm:text-lg transition-all shadow-md"
+          className="bg-[#FF0063] hover:bg-[#e0005a] text-white font-bold py-3 px-8 rounded-xl text-base sm:text-lg transition-all shadow-md"
         >
           Eliminar
         </button>

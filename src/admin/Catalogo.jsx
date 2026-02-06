@@ -5,7 +5,7 @@ import DashboardHeader from './components/dashboard-header';
 import ListItem from './components/list-items';
 
 export default function Lugares() {
-  const [activeSection, setActiveSection] = useState('LUGARES');
+  const [activeSection, setActiveSection] = useState('CATALOGO');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   // Estado de la lista de lugares
@@ -93,7 +93,7 @@ export default function Lugares() {
         <DashboardHeader />
         <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl lg:rounded-3xl p-6 sm:p-8 lg:p-12 shadow-xl fade-in-up">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800 mb-8">
-            LUGARES
+            CATALOGO
           </h2>
 
           <div className="mb-8">

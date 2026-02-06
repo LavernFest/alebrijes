@@ -81,7 +81,6 @@ export default function Landing() {
         `}
       </style>
 
-      {/* Mobile Header */}
       <MobileHeader
         isMobileMenuOpen={isMobileMenuOpen}
         setIsMobileMenuOpen={setIsMobileMenuOpen}
@@ -90,19 +89,15 @@ export default function Landing() {
         menuItems={menuItems}
       />
 
-      {/* Sidebar */}
       <Sidebar
         activeSection={activeSection}
         setActiveSection={setActiveSection}
         menuItems={menuItems}
       />
 
-      {/* Main Content */}
       <main className="flex-1 p-4 sm:p-6 lg:p-8">
-        {/* Header */}
         <DashboardHeader />
 
-        {/* Nosotros Form */}
         <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl lg:rounded-3xl p-6 sm:p-8 lg:p-12 shadow-xl fade-in-up">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800 mb-8">
             NOSOTROS

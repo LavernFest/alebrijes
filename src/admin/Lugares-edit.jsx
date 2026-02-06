@@ -177,7 +177,6 @@ export default function LugaresEdit() {
         `}
       </style>
 
-      {/* Mobile Header */}
       <MobileHeader
         isMobileMenuOpen={isMobileMenuOpen}
         setIsMobileMenuOpen={setIsMobileMenuOpen}
@@ -186,31 +185,25 @@ export default function LugaresEdit() {
         menuItems={menuItems}
       />
 
-      {/* Desktop Sidebar */}
       <Sidebar
         activeSection={activeSection}
         setActiveSection={setActiveSection}
         menuItems={menuItems}
       />
 
-      {/* Main Content */}
       <main className="flex-1 p-4 sm:p-6 lg:p-8">
-        {/* Desktop Header */}
         <DashboardHeader />
 
-        {/* Lugares Edit Form */}
         <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl lg:rounded-3xl p-6 sm:p-8 lg:p-12 shadow-xl fade-in-up">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800 mb-8">
             LUGARES
           </h2>
 
-          {/* Image Upload */}
           <ImageUpload 
             imagePreview={formData.imagePreview}
             onImageUpload={handleImageUpload}
           />
 
-          {/* Name Input */}
           <div className="mb-6">
             <input
               type="text"
@@ -231,7 +224,6 @@ export default function LugaresEdit() {
             )}
           </div>
 
-          {/* Description Input */}
           <div className="mb-6">
             <textarea
               placeholder="Descripción"
@@ -252,7 +244,6 @@ export default function LugaresEdit() {
             )}
           </div>
 
-          {/* Location Input */}
           <div className="mb-6">
             <input
               type="text"
@@ -273,7 +264,6 @@ export default function LugaresEdit() {
             )}
           </div>
 
-          {/* Schedule Input */}
           <div className="mb-6">
             <input
               type="text"
@@ -294,7 +284,6 @@ export default function LugaresEdit() {
             )}
           </div>
 
-          {/* Video Upload */}
           <FileUpload
             type="video"
             file={formData.video}
@@ -302,7 +291,6 @@ export default function LugaresEdit() {
             onFileUpload={handleVideoUpload}
           />
 
-          {/* Audio Upload */}
           <FileUpload
             type="audio"
             file={formData.audio}
@@ -310,7 +298,6 @@ export default function LugaresEdit() {
             onFileUpload={handleAudioUpload}
           />
 
-          {/* Action Buttons */}
           <FormActions
             onCancel={handleCancel}
             onSubmit={handleSubmit}

@@ -8,7 +8,6 @@ export default function WelcomeSection({ managementCards, onCardClick }) {
         ¡Bienvenido!
       </h2>
 
-      {/* Management Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
         {managementCards.slice(0, 4).map((card, index) => (
           <ManagementCard
@@ -19,8 +18,6 @@ export default function WelcomeSection({ managementCards, onCardClick }) {
           />
         ))}
       </div>
-
-      {/* Last Card Centered */}
       <div className="flex justify-center">
         <button
           onClick={() => onCardClick(managementCards[4].id)}

@@ -1,7 +1,7 @@
 import React from 'react';
 
 export default function FileUpload({ 
-  type = 'video', // 'video' or 'audio'
+  type = 'video', // video o audio
   file, 
   fileName,
   onFileUpload 
