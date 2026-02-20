@@ -2,7 +2,7 @@ import React from 'react';
 
 export default function Navbar() {
   return (
-    <nav className="bg-[#3BCEAC] py-4 px-6 shadow-md sticky top-0 z-50">
+    <nav className="bg-[#3BCEAC] py-4 px-6 shadow-md fixed relative top-0">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         {/* Logo */}
         <div className="flex items-center gap-3">
@@ -21,11 +21,14 @@ export default function Navbar() {
           <a href="#nosotros" className="text-gray-800 hover:text-white font-medium text-lg transition-colors">
             Nosotros
           </a>
-          <a href="#catalogo" className="text-gray-800 hover:text-white font-medium text-lg transition-colors">
-            Catálogo
+          <a href="#mapa" className="text-gray-800 hover:text-white font-medium text-lg transition-colors">
+            Mapa
           </a>
           <a href="#contactanos" className="text-gray-800 hover:text-white font-medium text-lg transition-colors">
             Contáctanos
+          </a>
+          <a href="#galeria" className="text-gray-800 hover:text-white font-medium text-lg transition-colors">
+            Galeria
           </a>
         </div>
 

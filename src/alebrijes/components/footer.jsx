@@ -1,11 +1,11 @@
 import React from 'react';
-import ScallopedBorder from './scalloped-border';
+import ScallopedBorder from '../landing/components/scalloped-border';
 
 export default function Footer() {
   return (
     <footer className="relative bg-[#3BCEAC] pt-20 pb-20 px-6 overflow-hidden">
       {/* Scalloped border superior */}
-      <ScallopedBorder position="top" fillColor="#FFF8E7" height="h-12 sm:h-16" />
+      <ScallopedBorder position="top" fillColor="#D5E8EB" height="h-12 sm:h-16" />
 
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Logo y título */}
@@ -14,7 +14,7 @@ export default function Footer() {
             <img 
               src="/assets/alebrije.png" 
               alt="Alebrijes Logo" 
-              className="w-25 h-25 object-contain"
+              className="w-16 h-16 object-contain"
             />
           </div>
           <h2 className="text-3xl sm:text-4xl font-bold text-gray-800 font-['Lobster_Two',cursive] italic">
@@ -34,13 +34,18 @@ export default function Footer() {
                 </a>
               </li>
               <li>
-                <a href="#catalogo" className="text-gray-700 hover:text-gray-900 transition-colors">
-                  Catálogo
+                <a href="#mapa" className="text-gray-700 hover:text-gray-900 transition-colors">
+                  Mapa
                 </a>
               </li>
               <li>
                 <a href="#contactanos" className="text-gray-700 hover:text-gray-900 transition-colors">
                   Contáctanos
+                </a>
+              </li>
+              <li>
+                <a href="#galeria" className="text-gray-700 hover:text-gray-900 transition-colors">
+                  Galeria
                 </a>
               </li>
             </ul>

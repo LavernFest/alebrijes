@@ -6,6 +6,7 @@ export default function Sidebar({ activeSection, setActiveSection, menuItems }) 
       <style>
         {`
           .scalloped-edge {
+          
             clip-path: url(#scalloped);
           }
 

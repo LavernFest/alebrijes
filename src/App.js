@@ -6,10 +6,11 @@ import Nosotros from './admin/Nosotros';
 import Lugares from './admin/Lugares';
 import LugaresEdit from './admin/Lugares-edit';
 import LandingA from './alebrijes/landing/landing';
+import Map from './alebrijes/map/map';
 
 function App() {
   return (
-    <LandingA/>
+    <Map/>
   );
 }
 
