@@ -5,11 +5,12 @@ const routes = [
   { path: '/landing', label: 'Landing', group: 'Usuario' },
   { path: '/admin-dashboard-que-pro', label: 'Dashboard', group: 'Admin' },
   { path: '/contactanos-ad', label: 'Contáctanos', group: 'Admin' },
-  { path: '/nosotros-ad', label: 'Nosotros', group: 'Admin' },
+  { path: '/nosotros-ad', label: 'Nosotros Admin', group: 'Admin' },
   { path: '/lugares-ad', label: 'Lugares', group: 'Admin' },
   { path: '/lugares-ad-edit', label: 'Lugares Edit', group: 'Admin' },
   { path: '/landing-ad', label: 'Landing Admin', group: 'Admin' },
   { path: '/login', label: 'Login', group: 'Usuario' },
+  { path: '/nosotros', label: 'Nosotros', group: 'Usuario' },
 ]
 
 const groupColors = {
