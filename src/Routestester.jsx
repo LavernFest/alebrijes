@@ -11,6 +11,7 @@ const routes = [
   { path: '/landing-ad', label: 'Landing Admin', group: 'Admin' },
   { path: '/login', label: 'Login', group: 'Usuario' },
   { path: '/nosotros', label: 'Nosotros', group: 'Usuario' },
+  { path: '/borrar', label: 'Borrar', group: 'Usuario' },
 ]
 
 const groupColors = {

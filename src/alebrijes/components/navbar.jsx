@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom'
+import UserMenu from './userMenu';
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -14,7 +15,7 @@ export default function Navbar() {
             alt="Alebrijes Logo" 
             className="w-16 h-16 object-contain"
           />
-          <Link to="/landing" className="text-2xl sm:text-3xl font-bold text-gray-800 font-['Lobster_Two',cursive] italic">Alebrijes</Link>
+          <Link to="/" className="text-2xl sm:text-3xl font-bold text-gray-800 font-['Lobster_Two',cursive] italic">Alebrijes</Link>
         </div>
 
         {/* Navigation Links - Desktop */}
@@ -27,11 +28,7 @@ export default function Navbar() {
 
         {/* User Icon + Hamburger */}
         <div className="flex items-center gap-3">
-          <button className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:scale-110 transition-transform">
-            <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-            </svg>
-          </button>
+          <UserMenu />
           <button
             onClick={() => setMenuOpen(!menuOpen)}
             className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:scale-110 transition-transform md:hidden"

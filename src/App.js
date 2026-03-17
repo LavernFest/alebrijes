@@ -11,6 +11,7 @@ import Map from './alebrijes/map/map';
 import Auth from './alebrijes/landing/auth';
 import RoutesTester from './Routestester';
 import Nosotros from './alebrijes/alebrijesnosotros';
+import Borrar from './alebrijes/landing/borrar'
 
 export default function App() {
   return (
@@ -19,7 +20,7 @@ export default function App() {
     <Routes>
       <Route path="/map" element={<Map />} />
       <Route path="/admin-dashboard-que-pro" element={<AdminDashboard />} />
-      <Route path="/landing" element={<Landing />} />
+      <Route path="/" element={<Landing />} />
       <Route path="/contactanos-ad" element={<Contactanos />} />
       <Route path="/nosotros-ad" element={<NosotrosAd />} />
       <Route path="/lugares-ad" element={<Lugares />} />
@@ -27,6 +28,7 @@ export default function App() {
       <Route path="/landing-ad" element={<LandingAd />} />
       <Route path="/login" element={<Auth />} />
       <Route path="/nosotros" element={<Nosotros />} />
+      <Route path="/borrar" element={<Borrar />} />
     </Routes>
     </>
   )

@@ -1,5 +1,6 @@
 import React from 'react';
 import ScallopedBorder from '../landing/components/scalloped-border';
+import { Link } from 'react-router-dom'
 
 export default function Footer() {
   return (
@@ -29,24 +30,16 @@ export default function Footer() {
             <h3 className="text-xl font-bold text-gray-800 mb-4">Conócenos</h3>
             <ul className="space-y-2">
               <li>
-                <a href="#nosotros" className="text-gray-700 hover:text-gray-900 transition-colors">
-                  Nosotros
-                </a>
+                <Link to="/nosotros" className="text-gray-700 hover:text-gray-900 transition-colors">Nosotros</Link>
               </li>
               <li>
-                <a href="#mapa" className="text-gray-700 hover:text-gray-900 transition-colors">
-                  Mapa
-                </a>
+                <Link to="/map" className="text-gray-700 hover:text-gray-900 transition-colors">Mapa</Link>
               </li>
               <li>
-                <a href="#contactanos" className="text-gray-700 hover:text-gray-900 transition-colors">
-                  Contáctanos
-                </a>
+                <Link to="/contactanos" className="text-gray-700 hover:text-gray-900 transition-colors">Contactanos</Link>
               </li>
               <li>
-                <a href="#galeria" className="text-gray-700 hover:text-gray-900 transition-colors">
-                  Galeria
-                </a>
+                <Link to="/galeria" className="text-gray-700 hover:text-gray-900 transition-colors">Galeria</Link>
               </li>
             </ul>
           </div>
