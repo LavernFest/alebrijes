@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
-export default function UserMenu() {
+export default function UserMenu({ isAdminPage = false }) {
   const [open, setOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [visible, setVisible] = useState(false);
@@ -107,6 +107,15 @@ export default function UserMenu() {
                         {user.email}
                       </p>
                     )}
+                    {/* Badge de admin */}
+                    {user.role === "admin" && (
+                      <span className="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full bg-[#FFE74C]/30 border border-[#FFE74C]/60 text-[#FFE74C] text-[10px] font-bold tracking-wide font-['Alata',sans-serif]">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-2.5 h-2.5">
+                          <path fillRule="evenodd" d="M12.516 2.17a.75.75 0 0 0-1.032 0 11.209 11.209 0 0 1-7.877 3.08.75.75 0 0 0-.722.515A12.74 12.74 0 0 0 2.25 9.75c0 5.942 4.064 10.933 9.563 12.348a.749.749 0 0 0 .374 0c5.499-1.415 9.563-6.406 9.563-12.348 0-1.39-.223-2.73-.635-3.985a.75.75 0 0 0-.722-.516l-.143.001c-2.996 0-5.717-1.17-7.734-3.08Z" clipRule="evenodd" />
+                        </svg>
+                        ADMIN
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
@@ -114,9 +123,47 @@ export default function UserMenu() {
               {/* Botones de acción */}
               <div className="p-3 flex flex-col gap-1">
 
+                {/* Botón contextual: Panel Admin ↔ Ir a Landing */}
+                {user.role === "admin" && (
+                  <>
+                    {isAdminPage ? (
+                      /* Estando en admin → botón para volver a la landing */
+                      <button
+                        onClick={() => { setOpen(false); navigate("/"); }}
+                        className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-[#3BCEAC] bg-gray-800 hover:bg-gray-700 hover:scale-[1.02] transition-all duration-200 shadow-md font-['Alata',sans-serif]"
+                      >
+                        <span className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-white/10">
+                          {/* Icono casa */}
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+                            <path d="M11.47 3.841a.75.75 0 0 1 1.06 0l8.69 8.69a.75.75 0 1 0 1.06-1.061l-8.689-8.69a2.25 2.25 0 0 0-3.182 0l-8.69 8.69a.75.75 0 1 0 1.061 1.06l8.69-8.689Z" />
+                            <path d="m12 5.432 8.159 8.159c.03.03.06.058.091.086v6.198c0 1.035-.84 1.875-1.875 1.875H15a.75.75 0 0 1-.75-.75v-4.5a.75.75 0 0 0-.75-.75h-3a.75.75 0 0 0-.75.75V21a.75.75 0 0 1-.75.75H5.625a1.875 1.875 0 0 1-1.875-1.875v-6.198a2.29 2.29 0 0 0 .091-.086L12 5.432Z" />
+                          </svg>
+                        </span>
+                        Ir a Landing
+                      </button>
+                    ) : (
+                      /* Estando fuera del admin → botón para ir al panel */
+                      <button
+                        onClick={() => { setOpen(false); navigate("/admin-dashboard"); }}
+                        className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-[#6E2594] to-[#FF0063] hover:opacity-90 hover:scale-[1.02] transition-all duration-200 shadow-md font-['Alata',sans-serif]"
+                      >
+                        <span className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-white/20">
+                          {/* Icono escudo */}
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+                            <path fillRule="evenodd" d="M12.516 2.17a.75.75 0 0 0-1.032 0 11.209 11.209 0 0 1-7.877 3.08.75.75 0 0 0-.722.515A12.74 12.74 0 0 0 2.25 9.75c0 5.942 4.064 10.933 9.563 12.348a.749.749 0 0 0 .374 0c5.499-1.415 9.563-6.406 9.563-12.348 0-1.39-.223-2.73-.635-3.985a.75.75 0 0 0-.722-.516l-.143.001c-2.996 0-5.717-1.17-7.734-3.08Z" clipRule="evenodd" />
+                          </svg>
+                        </span>
+                        Panel de Administrador
+                      </button>
+                    )}
+                    {/* Divisor */}
+                    <div className="my-1 mx-2 h-px bg-[#6E2594]/10" />
+                  </>
+                )}
+
                 {/* Editar perfil */}
                 <button
-                  onClick={() => { setOpen(false); navigate("/perfil/editar"); }}
+                  onClick={() => { setOpen(false); navigate("/perfil-edit"); }}
                   className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-[#6E2594] hover:bg-[#6E2594]/10 hover:border-[#6E2594]/20 border border-transparent transition-all duration-200 font-['Alata',sans-serif]"
                 >
                   <span className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-[#6E2594]/10">

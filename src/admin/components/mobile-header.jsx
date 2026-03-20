@@ -1,12 +1,36 @@
 import React from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
-export default function MobileHeader({ 
-  isMobileMenuOpen, 
-  setIsMobileMenuOpen, 
-  activeSection, 
-  setActiveSection, 
-  menuItems 
-}) {
+const SECTION_ROUTES = {
+  DASHBOARD:   '/admin-dashboard',
+  LANDING:     '/landing-ad',
+  NOSOTROS:    '/nosotros-ad',
+  CONTACTANOS: '/contactanos-ad',
+  LUGARES:     '/lugares-ad',
+};
+
+const menuItems = [
+  { id: 'DASHBOARD',   label: 'DASHBOARD'   },
+  { id: 'LANDING',     label: 'LANDING'     },
+  { id: 'NOSOTROS',    label: 'NOSOTROS'    },
+  { id: 'CONTACTANOS', label: 'CONTACTANOS' },
+  { id: 'LUGARES',     label: 'LUGARES'     },
+];
+
+export default function MobileHeader({ isMobileMenuOpen, setIsMobileMenuOpen }) {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Detectar sección activa según URL
+  const activeSection = Object.entries(SECTION_ROUTES).find(
+    ([, path]) => location.pathname === path
+  )?.[0] ?? 'DASHBOARD';
+
+  const handleNav = (id) => {
+    navigate(SECTION_ROUTES[id]);
+    setIsMobileMenuOpen(false);
+  };
+
   return (
     <>
       {/* Mobile Header con Hamburger Menu */}
@@ -17,7 +41,7 @@ export default function MobileHeader({
           </div>
           <h1 className="text-white text-xl font-bold">Admin Dashboard</h1>
         </div>
-        <button 
+        <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           className="text-white p-2 hover:bg-white/20 rounded-lg transition-colors"
         >
@@ -35,13 +59,10 @@ export default function MobileHeader({
       {isMobileMenuOpen && (
         <div className="lg:hidden bg-gradient-to-b from-[#FF0063] to-[#6E2594] shadow-xl">
           <nav className="p-4 space-y-2">
-            {menuItems.map((item, index) => (
+            {menuItems.map((item) => (
               <button
                 key={item.id}
-                onClick={() => {
-                  setActiveSection(item.id);
-                  setIsMobileMenuOpen(false);
-                }}
+                onClick={() => handleNav(item.id)}
                 className={`w-full text-left px-4 py-3 rounded-full text-base font-bold tracking-wide transition-all duration-300 ${
                   activeSection === item.id
                     ? 'bg-white text-[#FF0063] shadow-lg'

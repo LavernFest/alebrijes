@@ -1,32 +1,24 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Sidebar from './components/sidebar';
 import MobileHeader from './components/mobile-header';
 import DashboardHeader from './components/dashboard-header';
 import WelcomeSection from './components/welcome';
 
 export default function AdminDashboard() {
-  const [activeSection, setActiveSection] = useState('DASHBOARD');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  const menuItems = [
-    { id: 'DASHBOARD', label: 'DASHBOARD' },
-    { id: 'LANDING', label: 'LANDING' },
-    { id: 'CATALOGO', label: 'CATALOGO' },
-    { id: 'NOSOTROS', label: 'NOSOTROS' },
-    { id: 'CONTACTANOS', label: 'CONTACTANOS' },
-    { id: 'LUGARES', label: 'LUGARES' }
-  ];
+  const navigate = useNavigate();
 
   const managementCards = [
-    { id: 1, title: 'Manage Landing' },
-    { id: 2, title: 'Manage Catalogo' },
-    { id: 3, title: 'Manage Nosotros' },
-    { id: 4, title: 'Manage Contactanos' },
-    { id: 5, title: 'Manage Lugares' }
+    { id: 1, title: 'Manage Landing',     route: '/landing-ad'     },
+    { id: 2, title: 'Manage Nosotros',    route: '/nosotros-ad'    },
+    { id: 3, title: 'Manage Contactanos', route: '/contactanos-ad' },
+    { id: 4, title: 'Manage Lugares',     route: '/lugares-ad'     },
   ];
 
   const handleCardClick = (cardId) => {
-    console.log(`Card ${cardId} clicked`);
+    const card = managementCards.find((c) => c.id === cardId);
+    if (card?.route) navigate(card.route);
   };
 
   return (
@@ -36,14 +28,8 @@ export default function AdminDashboard() {
           @import url('https://fonts.googleapis.com/css2?family=Alata&display=swap');
           
           @keyframes fadeInUp {
-            from {
-              opacity: 0;
-              transform: translateY(30px);
-            }
-            to {
-              opacity: 1;
-              transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(30px); }
+            to   { opacity: 1; transform: translateY(0);    }
           }
           
           .fade-in-up {
@@ -65,24 +51,14 @@ export default function AdminDashboard() {
       <MobileHeader
         isMobileMenuOpen={isMobileMenuOpen}
         setIsMobileMenuOpen={setIsMobileMenuOpen}
-        activeSection={activeSection}
-        setActiveSection={setActiveSection}
-        menuItems={menuItems}
       />
 
       {/* Desktop Sidebar */}
-      <Sidebar
-        activeSection={activeSection}
-        setActiveSection={setActiveSection}
-        menuItems={menuItems}
-      />
+      <Sidebar />
 
       {/* Main Content */}
       <main className="flex-1 p-4 sm:p-6 lg:p-8">
-        {/* Desktop Header */}
         <DashboardHeader />
-
-        {/* Welcome Section */}
         <WelcomeSection
           managementCards={managementCards}
           onCardClick={handleCardClick}

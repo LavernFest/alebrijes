@@ -1,10 +1,38 @@
-export default function Sidebar({ activeSection, setActiveSection, menuItems }) {
+import { useNavigate, useLocation } from 'react-router-dom';
+const SECTION_ROUTES = {
+  DASHBOARD:  '/admin-dashboard',
+  LANDING:    '/landing-ad',
+  NOSOTROS:   '/nosotros-ad',
+  CONTACTANOS:'/contactanos-ad',
+  LUGARES:    '/lugares-ad',
+};
+
+const menuItems = [
+  { id: 'DASHBOARD',   label: 'DASHBOARD'   },
+  { id: 'LANDING',     label: 'LANDING'     },
+  { id: 'NOSOTROS',    label: 'NOSOTROS'    },
+  { id: 'CONTACTANOS', label: 'CONTACTANOS' },
+  { id: 'LUGARES',     label: 'LUGARES'     },
+];
+
+export default function Sidebar() {
+  const navigate  = useNavigate();
+  const location  = useLocation();
+
+  // Detectar sección activa según la URL actual
+  const activeSection = Object.entries(SECTION_ROUTES).find(
+    ([, path]) => location.pathname === path
+  )?.[0] ?? 'DASHBOARD';
+
+  const handleNav = (id) => {
+    navigate(SECTION_ROUTES[id]);
+  };
+
   return (
     <>
       <style>
         {`
           .scalloped-edge {
-          
             clip-path: url(#scalloped);
           }
 
@@ -12,7 +40,7 @@ export default function Sidebar({ activeSection, setActiveSection, menuItems }) 
             0%, 100% { transform: translateY(0) rotate(0deg); }
             50% { transform: translateY(-20px) rotate(5deg); }
           }
-          
+
           .float-animation {
             animation: float 6s ease-in-out infinite;
           }
@@ -59,9 +87,9 @@ export default function Sidebar({ activeSection, setActiveSection, menuItems }) 
         {/* Logo */}
         <div className="flex justify-center mb-12">
           <div className="w-40 h-40 bg-white rounded-full flex items-center justify-center shadow-xl float-animation overflow-hidden">
-            <img 
-              src='/assets/alebrije.png' 
-              alt='Alebrije Logo' 
+            <img
+              src='/assets/alebrije.png'
+              alt='Alebrije Logo'
               className='w-50 h-50 object-contain'
             />
           </div>
@@ -72,15 +100,13 @@ export default function Sidebar({ activeSection, setActiveSection, menuItems }) 
           {menuItems.map((item, index) => (
             <button
               key={item.id}
-              onClick={() => setActiveSection(item.id)}
+              onClick={() => handleNav(item.id)}
               className={`w-full text-left px-6 py-4 rounded-full text-xl font-bold tracking-wide transition-all duration-300 ${
                 activeSection === item.id
                   ? 'bg-white text-[#FF0063] shadow-lg scale-105'
                   : 'text-white hover:bg-white/20 hover:scale-105'
               }`}
-              style={{
-                animationDelay: `${index * 0.1}s`
-              }}
+              style={{ animationDelay: `${index * 0.1}s` }}
             >
               {item.label}
             </button>

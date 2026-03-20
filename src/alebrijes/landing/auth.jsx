@@ -146,16 +146,31 @@ export default function AlebrijesAuth() {
 
   const handleSubmit = async () => {
     const e = validate();
-    if (Object.keys(e).length > 0) {
-      setErrors(e);
-      return;
-    }
+    if (Object.keys(e).length > 0) { setErrors(e); return; }
     setIsLoading(true);
     setErrors({});
-    await new Promise((r) => setTimeout(r, 2000));
-    setIsLoading(false);
-    setSuccess(true);
-    setTimeout(() => setSuccess(false), 3000);
+
+    try {
+      const res = await fetch("/alebrijes/api/login.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: form.email, password: form.password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setErrors({ email: data.error });
+      } else {
+        setSuccess(true);
+        setTimeout(() => setSuccess(false), 3000);
+        localStorage.setItem("user", JSON.stringify(data.user))
+      }
+    } catch (err) {
+      setErrors({ email: "No se pudo conectar al servidor" });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleForgot = async () => {

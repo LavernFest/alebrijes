@@ -2,8 +2,8 @@ import { Link, useLocation } from 'react-router-dom'
 
 const routes = [
   { path: '/map', label: 'Map', group: 'Usuario' },
-  { path: '/landing', label: 'Landing', group: 'Usuario' },
-  { path: '/admin-dashboard-que-pro', label: 'Dashboard', group: 'Admin' },
+  { path: '/', label: 'Landing', group: 'Usuario' },
+  { path: '/admin-dashboard', label: 'Dashboard', group: 'Admin' },
   { path: '/contactanos-ad', label: 'Contáctanos', group: 'Admin' },
   { path: '/nosotros-ad', label: 'Nosotros Admin', group: 'Admin' },
   { path: '/lugares-ad', label: 'Lugares', group: 'Admin' },
@@ -11,7 +11,7 @@ const routes = [
   { path: '/landing-ad', label: 'Landing Admin', group: 'Admin' },
   { path: '/login', label: 'Login', group: 'Usuario' },
   { path: '/nosotros', label: 'Nosotros', group: 'Usuario' },
-  { path: '/borrar', label: 'Borrar', group: 'Usuario' },
+  { path: '/perfil-edit', label: 'Usuario Panel', group: 'Usuario' },
 ]
 
 const groupColors = {
