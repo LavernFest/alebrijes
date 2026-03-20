@@ -4,6 +4,7 @@ import Hero from './components/hero';
 import Categories from './components/categories';
 import FeaturedProducts from './components/featured-products';
 import Footer from '../components/footer';
+import GalerySection from './components/galerysection';
 
 export default function LandingPage() {
   return (
@@ -20,21 +21,34 @@ export default function LandingPage() {
 
       <Categories />
 
+      {/* Espacio */}
+      <div className="bg-[#FFFFFF] py-12" />
+
       {/* Banner */}
       <section className="bg-[#FFE74C] py-12 sm:py-16 px-6">
         <div className="max-w-5xl mx-auto">
           <p className="text-2xl sm:text-3xl lg:text-4xl text-center text-gray-800 leading-relaxed font-['Lobster_Two',cursive] italic">
-            Celebramos la tradición mexicana compartiendo dulces típicos que forman parte de nuestra cultura y nuestras raíces.
+            Explora México a través de un mapa interactivo que reúne sus principales sitios turísticos por estado.
           </p>
         </div>
       </section>
 
-      <FeaturedProducts />
-          <section className="bg-[#263324] py-12 sm:py-16 px-6" >
+      {/* Espacio */}
+      <div className="bg-[#FFFFFF] py-20" />
+
+      <GalerySection /> 
+
+      {/* Espacio */}
+      <div className="bg-[#FFFFFF] py-8" />
+
+          <section className="bg-[#ffffff] py-12 sm:py-16 px-6" >
             <div className="max-w-5xl mx-auto">
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl text-center text-white leading-relaxed font-['Lobster_Two',cursive] italic">MAPA</h2>
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl text-center text-black leading-relaxed font-['Lobster_Two',cursive] italic">Mapa Interactivo</h2>
             </div>
           </section>
+          
+      {/* Espacio */}
+      <div className="bg-[#FFFFFF] py-16" />
 
       <Footer />
     </div>

@@ -5,19 +5,25 @@ export default function Categories() {
   const categories = [
     {
       id: 1,
-      title: 'Dulces tradicionales',
-      image: '/assets/tradicionales.png'
+      title: 'Nevado de Toluca',
+      image: '/assets/NevadoToluca.jpg'
     },
     {
       id: 2,
-      title: 'Paquetes Alebrijes',
-      image: '/assets/paquetes.png'
+      title: 'El arco de Cabo San Lucas',
+      image: '/assets/arcolucas.jpg'
     },
     {
       id: 3,
-      title: 'Para ocasiones especiales',
-      image: '/assets/especiales.png'
+      title: 'Museo regional de Queretaro',
+      image: '/assets/museoqueretaro.jpg'
+    },
+    {
+      id: 4,
+      title: 'Piramide de Teotihuacan',
+      image: '/assets/piramide.jpg'
     }
+
   ];
 
   const handleCategoryClick = (categoryId) => {
@@ -34,7 +40,7 @@ export default function Categories() {
       </div>
       <div className="max-w-7xl mx-auto">
         <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#FF0063] text-center mb-12 font-['Lobster_Two',cursive] italic">
-          Categorías
+          Lugares destacados
         </h2>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">

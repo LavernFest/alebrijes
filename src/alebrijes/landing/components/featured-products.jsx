@@ -26,7 +26,7 @@ export default function FeaturedProducts() {
       {/* Contenido */}
       <div className="max-w-7xl mx-auto relative z-10">
         <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white text-center mb-12 font-['Alata',sans-serif]">
-          Nuestros dulces destacados
+          Explorar la galería
         </h2>
         
         {/* Scrollable horizontal en móvil, grid en desktop */}
