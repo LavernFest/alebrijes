@@ -55,6 +55,11 @@ export default function UserMenu({ isAdminPage = false }) {
       .toUpperCase();
   };
 
+  const getPfpUrl = (pfp) => {
+    if (!pfp) return null;
+    return `http://localhost/Alebrijes_BackEnd_PHP/alebrijes/${pfp}`;
+  };
+
   return (
     <div className="relative" ref={menuRef}>
 
@@ -66,10 +71,20 @@ export default function UserMenu({ isAdminPage = false }) {
           ${open ? "bg-[#6E2594] ring-2 ring-[#FFE74C]" : "bg-transparent"}`}
       >
         {user ? (
-          <span className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white bg-gradient-to-br from-[#6E2594] to-[#FF0063] select-none font-['Alata',sans-serif]">
-            {getInitials(user.name)}
-          </span>
-        ) : (
+            <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-[#6E2594] to-[#FF0063] flex-shrink-0 border-2 border-[#FFE74C]">
+              {user.pfp ? (
+                <img
+                  src={getPfpUrl(user.pfp)}
+                  alt="foto de perfil"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span className="text-xs font-bold text-white select-none font-['Alata',sans-serif]">
+                  {getInitials(user.name)}
+                </span>
+              )}
+            </div>
+          ) : (
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
@@ -92,8 +107,18 @@ export default function UserMenu({ isAdminPage = false }) {
               {/* Header con info del usuario */}
               <div className="px-5 py-4 bg-gradient-to-br from-[#6E2594] to-[#FF0063]">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0 select-none bg-white/20 border-2 border-[#FFE74C] font-['Alata',sans-serif]">
-                    {getInitials(user.name)}
+                  <div className="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center text-white font-bold text-lg flex-shrink-0 select-none bg-white/20 border-2 border-[#FFE74C] font-['Alata',sans-serif]">
+                    {user.pfp ? (
+                      <img
+                        src={getPfpUrl(user.pfp)}
+                        alt="foto de perfil"
+                        className="w-full h-full object-cover"
+                      />
+                    ): (
+                      <span className="w-full- h-full flex items-center justify-center text-white font-bold text-lg select-none">
+                        {getInitials(user.name)}
+                      </span>
+                    )}
                   </div>
                   <div className="min-w-0">
                     <p className="text-white font-bold truncate text-[0.95rem] font-['Alata',sans-serif]">

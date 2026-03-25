@@ -18,7 +18,7 @@ const validate = ({ name, email, password, confirmPassword, changePassword }) =>
   return errs;
 };
 
-// ── Sub-component: campo de formulario ───────────────────────────────────────
+// SUbcomponent: campo de formulario
 function Field({ label, id, type = "text", value, onChange, error, placeholder, icon, rightSlot }) {
   return (
     <div className="flex flex-col gap-1">
@@ -75,7 +75,9 @@ export default function UserProfile() {
         const parsed = JSON.parse(stored);
         setUser(parsed);
         setForm({ name: parsed.name || "", email: parsed.email || "", password: "", confirmPassword: "" });
-        if (parsed.avatar) setAvatarPreview(parsed.avatar);
+        if (parsed.pfp) {
+          setAvatarPreview(`http://localhost/Alebrijes_BackEnd_PHP/alebrijes/${parsed.pfp}`);
+          }
       } catch {
         navigate("/login");
       }
@@ -203,7 +205,7 @@ export default function UserProfile() {
           </div>
         )}
 
-        {/* ── Sección 1: Avatar ── */}
+        {/* Avatar */}
         <div className="bg-white rounded-3xl shadow-xl p-6 sm:p-8 mb-5 fade-up-1">
           <h2 className="text-lg font-bold text-[#6E2594] mb-6 font-['Alata',sans-serif] flex items-center gap-2">
             <span className="w-7 h-7 rounded-lg bg-[#6E2594]/10 flex items-center justify-center">
