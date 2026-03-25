@@ -24,7 +24,7 @@ export default function DevNav() {
   const groups = [...new Set(routes.map(r => r.group))]
 
   return (
-    <div className="fixed bottom-4 right-4 z-50">
+    <div className="fixed bottom-4 right-4 z-[2001]">
       {/* Toggle checkbox trick */}
       <input type="checkbox" id="devnav-toggle" className="hidden peer" />
 

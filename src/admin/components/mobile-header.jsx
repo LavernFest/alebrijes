@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import UserMenu from '../../alebrijes/components/userMenu';
 
 const SECTION_ROUTES = {
   DASHBOARD:   '/admin-dashboard',
@@ -41,6 +42,9 @@ export default function MobileHeader({ isMobileMenuOpen, setIsMobileMenuOpen }) 
           </div>
           <h1 className="text-white text-xl font-bold">Admin Dashboard</h1>
         </div>
+
+        <div className="flex items-center gap-2">
+        <UserMenu isAdminPage={true} />  {/* ← nuevo */}
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           className="text-white p-2 hover:bg-white/20 rounded-lg transition-colors"
@@ -54,6 +58,7 @@ export default function MobileHeader({ isMobileMenuOpen, setIsMobileMenuOpen }) 
           </svg>
         </button>
       </div>
+    </div>
 
       {/* Mobile Menu Dropdown */}
       {isMobileMenuOpen && (

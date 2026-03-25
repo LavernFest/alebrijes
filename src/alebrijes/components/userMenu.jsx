@@ -86,10 +86,7 @@ export default function UserMenu({ isAdminPage = false }) {
 
       {/* Dropdown */}
       {open && (
-        <div
-          className={`absolute right-0 mt-3 w-64 rounded-2xl overflow-hidden z-50 bg-[#FFF8E7] border-2 border-[#FFE74C] shadow-xl transition-all duration-200
-            ${visible ? "opacity-100 translate-y-0 scale-100" : "opacity-0 -translate-y-2 scale-95"}`}
-        >
+        <div className={`absolute right-0 mt-3 w-64 rounded-2xl overflow-hidden z-[1100] bg-[#FFF8E7] ...`}>
           {user ? (
             <>
               {/* Header con info del usuario */}
@@ -193,7 +190,7 @@ export default function UserMenu({ isAdminPage = false }) {
 
                 {/* Cerrar sesión */}
                 <button
-                  onClick={() => { localStorage.removeItem("user"); setUser(null); setOpen(false); }}
+                  onClick={() => { localStorage.removeItem("user"); setUser(null); setOpen(false); navigate("/"); }}
                   className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-gray-400 hover:bg-black/5 hover:text-gray-600 border border-transparent transition-all duration-200 font-['Alata',sans-serif]"
                 >
                   <span className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-black/5">

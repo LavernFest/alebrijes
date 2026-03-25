@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
+
 
 const COLORS = {
   yellow: "#FFE74C",
@@ -103,6 +105,7 @@ export default function AlebrijesAuth() {
   const [forgotEmail, setForgotEmail] = useState("");
   const [forgotSent, setForgotSent] = useState(false);
   const [cardVisible, setCardVisible] = useState(false);
+  const navigate = useNavigate();
 
   const [form, setForm] = useState({
     name: "",
@@ -162,9 +165,11 @@ export default function AlebrijesAuth() {
       if (!res.ok) {
         setErrors({ email: data.error });
       } else {
-        setSuccess(true);
-        setTimeout(() => setSuccess(false), 3000);
         localStorage.setItem("user", JSON.stringify(data.user))
+        setSuccess(true);
+        setTimeout(() => {
+          navigate("/");
+        }, 1000);    
       }
     } catch (err) {
       setErrors({ email: "No se pudo conectar al servidor" });

@@ -350,7 +350,7 @@ export default function MexicoInteractiveMap() {
     <div className="min-h-screen bg-[#D5E8EB]">
       <Navbar/>
 
-      <div className="relative w-full flex-1 font-['Alata',sans-serif]" style={{ minHeight: "calc(100vh - 84px)" }}>
+      <div className="relative w-full flex-1 font-['Alata',sans-serif]" style={{ minHeight: "calc(100vh - 84px)", isolation: "isolate" }}>
 
         {selectedState && (
           <div

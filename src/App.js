@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 
 import AdminDashboard from './admin/admin-dashboard';
 import Landing from './alebrijes/landing/landing';
@@ -13,23 +13,32 @@ import RoutesTester from './Routestester';
 import Nosotros from './alebrijes/components/alebrijesnosotros';
 import UserProfile from './alebrijes/perfil/userProfile';
 
+function AdminRoute({ children }) {
+  const user = JSON.parse(localStorage.getItem("user") || "null");
+  if (!user || user.role !== "admin") return <Navigate to="/login" replace />;
+  return children;
+}
+
 export default function App() {
   return (
     <>
     <RoutesTester/>
     <Routes>
-      <Route path="/map" element={<Map />} />
-      <Route path="/admin-dashboard" element={<AdminDashboard />} />
-      <Route path="/" element={<Landing />} />
-      <Route path="/contactanos-ad" element={<Contactanos />} />
-      <Route path="/nosotros-ad" element={<NosotrosAd />} />
-      <Route path="/lugares-ad" element={<Lugares />} />
-      <Route path="/lugares-ad-edit" element={<LugaresEdit />} />
-      <Route path="/landing-ad" element={<LandingAd />} />
-      <Route path="/login" element={<Auth />} />
-      <Route path="/nosotros" element={<Nosotros />} />
-      <Route path="/perfil-edit" element={<UserProfile />} />
-    </Routes>
+      {/* Rutas públicas */}
+        <Route path="/"        element={<Landing />} />
+        <Route path="/map"     element={<Map />} />
+        <Route path="/login"   element={<Auth />} />
+        <Route path="/nosotros" element={<Nosotros />} />
+        <Route path="/perfil-edit" element={<UserProfile />} />
+
+        {/* Rutas protegidas admin */}
+        <Route path="/admin-dashboard" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+        <Route path="/contactanos-ad"  element={<AdminRoute><Contactanos /></AdminRoute>} />
+        <Route path="/nosotros-ad"     element={<AdminRoute><NosotrosAd /></AdminRoute>} />
+        <Route path="/lugares-ad"      element={<AdminRoute><Lugares /></AdminRoute>} />
+        <Route path="/lugares-ad-edit" element={<AdminRoute><LugaresEdit /></AdminRoute>} />
+        <Route path="/landing-ad"      element={<AdminRoute><LandingAd /></AdminRoute>} />
+      </Routes>
     </>
   )
 }
