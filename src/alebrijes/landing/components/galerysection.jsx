@@ -1,11 +1,13 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function GalerySection() {
 
-  const handleClick = () => {
-    console.log("Ir a galería");
-  };
+  const navigate = useNavigate();
 
+  const handleClick = () => {
+    navigate('/galeria');
+  };
   return (
     <section
       className="relative bg-cover bg-center overflow-hidden w-full"
