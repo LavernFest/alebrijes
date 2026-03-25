@@ -99,25 +99,41 @@ export default function UserProfile() {
   };
 
   // Guardar
-  const handleSave = () => {
-    const errs = validate({ ...form, changePassword });
-    if (Object.keys(errs).length > 0) { setErrors(errs); return; }
-    setErrors({});
+  const handleSave = async () => {
+      const errs = validate({ ...form, changePassword });
+      if (Object.keys(errs).length > 0) { setErrors(errs); return; }
+      setErrors({});
 
-    const updated = {
-      ...user,
-      name: form.name.trim(),
-      email: form.email.trim(),
-      ...(changePassword && { password: form.password }),
-      ...(avatarPreview && { avatar: avatarPreview }),
-    };
-    localStorage.setItem("user", JSON.stringify(updated));
-    setUser(updated);
-    setSaved(true);
-    setChangePassword(false);
-    setForm((f) => ({ ...f, password: "", confirmPassword: "" }));
-    setTimeout(() => setSaved(false), 3000);
+      // Armar FormData para poder enviar la foto
+      const fd = new FormData();
+      fd.append("id_user", user.id_user);
+      if (form.name  !== user.name)  fd.append("name",  form.name.trim());
+      if (form.email !== user.email) fd.append("email", form.email.trim());
+      if (changePassword)            fd.append("password", form.password);
+      if (avatarFile)                fd.append("pfp", avatarFile);
+
+      try {
+          const res = await fetch("Alebrijes_BackEnd_PHP/alebrijes/api/users.php", {
+              method: "PUT",
+              body: fd 
+          });
+          const data = await res.json();
+
+          if (!res.ok) { setErrors({ general: data.error }); return; }
+
+          // Actualizar localStorage
+          localStorage.setItem("user", JSON.stringify(data.user));
+          setUser(data.user);
+          setSaved(true);
+          setChangePassword(false);
+          setForm(f => ({ ...f, password: "", confirmPassword: "" }));
+          setTimeout(() => setSaved(false), 3000);
+
+      } catch {
+          setErrors({ general: "No se pudo conectar al servidor" });
+      }
   };
+
 
   if (!user || !mounted) return null;
 
@@ -245,7 +261,7 @@ export default function UserProfile() {
           </div>
         </div>
 
-        {/* ── Sección 2: Datos personales ── */}
+        {/* Datos personales */}
         <div className="bg-white rounded-3xl shadow-xl p-6 sm:p-8 mb-5 fade-up-2">
           <h2 className="text-lg font-bold text-[#FF0063] mb-6 font-['Alata',sans-serif] flex items-center gap-2">
             <span className="w-7 h-7 rounded-lg bg-[#FF0063]/10 flex items-center justify-center">
@@ -289,7 +305,7 @@ export default function UserProfile() {
           </div>
         </div>
 
-        {/* ── Sección 3: Contraseña ── */}
+        {/* Contraseña */}
         <div className="bg-white rounded-3xl shadow-xl p-6 sm:p-8 mb-8 fade-up-3">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-bold text-[#FFA414] font-['Alata',sans-serif] flex items-center gap-2">
@@ -349,7 +365,7 @@ export default function UserProfile() {
           )}
         </div>
 
-        {/* ── Botones de acción ── */}
+        {/* Botones de acción */}
         <div className="flex flex-col sm:flex-row gap-3">
           <button
             onClick={() => navigate(-1)}

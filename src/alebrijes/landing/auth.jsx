@@ -154,10 +154,18 @@ export default function AlebrijesAuth() {
     setErrors({});
 
     try {
-      const res = await fetch("/alebrijes/api/login.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: form.email, password: form.password }),
+      const endpoint = mode === "login"
+          ? "Alebrijes_BackEnd_PHP/alebrijes/api/login.php"
+          : "Alebrijes_BackEnd_PHP/alebrijes/api/users.php";
+
+      const res = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(
+              mode === "login"
+                  ? { email: form.email, password: form.password }
+                  : { name: form.name, email: form.email, password: form.password }
+          ),
       });
 
       const data = await res.json();
@@ -168,8 +176,12 @@ export default function AlebrijesAuth() {
         localStorage.setItem("user", JSON.stringify(data.user))
         setSuccess(true);
         setTimeout(() => {
-          navigate("/");
-        }, 1000);    
+          if (data.user.role === "admin") {
+            navigate("/admin-dashboard");
+          } else {
+            navigate("/map");
+          }
+        }, 1000);  
       }
     } catch (err) {
       setErrors({ email: "No se pudo conectar al servidor" });

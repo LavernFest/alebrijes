@@ -12,6 +12,7 @@ const routes = [
   { path: '/login', label: 'Login', group: 'Usuario' },
   { path: '/nosotros', label: 'Nosotros', group: 'Usuario' },
   { path: '/perfil-edit', label: 'Usuario Panel', group: 'Usuario' },
+  { path: '/galeria', label: 'Galeria', group: 'Usuario' },
 ]
 
 const groupColors = {
