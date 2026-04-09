@@ -2,7 +2,14 @@ import React, { useState, useEffect, useCallback, useMemo, useRef } from "react"
 import Navbar from "../components/navbar";
 import Footer from "../components/footer";
 
-// Cambiar por GeoJson investigar
+const BASE_URL = "http://localhost/Alebrijes_BackEnd_PHP/alebrijes/api";
+
+// Helper para obtener el usuario del localStorage
+const getUser = () => {
+  try { return JSON.parse(localStorage.getItem("user")); } 
+  catch { return null; }
+};
+
 const MEXICO_STATES = [
   { id: "AGU", name: "Aguascalientes", center: [21.8853, -102.2916], bounds: [[21.7, -102.5], [22.1, -101.9]] },
   { id: "BCN", name: "Baja California", center: [30.8406, -115.2838], bounds: [[28.0, -117.2], [32.7, -112.8]] },
@@ -38,154 +45,7 @@ const MEXICO_STATES = [
   { id: "ZAC", name: "Zacatecas", center: [22.7709, -102.5832], bounds: [[21.0, -104.4], [25.1, -101.2]] },
 ];
 
-// LUGARES TURISTICOS POR ESTADO (placeholders)
-const TOURIST_PLACES = {
-  CMX: [
-    { id: "cmx1", name: "Palacio de Bellas Artes", lat: 19.4352, lng: -99.1412, media: "image", mediaSrc: null },
-    { id: "cmx2", name: "Castillo de Chapultepec", lat: 19.4205, lng: -99.1818, media: "video", mediaSrc: null },
-    { id: "cmx3", name: "Zócalo", lat: 19.4326, lng: -99.1332, media: "image", mediaSrc: null },
-    { id: "cmx4", name: "Coyoacán", lat: 19.35, lng: -99.1621, media: "image", mediaSrc: null },
-    { id: "cmx5", name: "Xochimilco", lat: 19.2577, lng: -99.104, media: "video", mediaSrc: null },
-  ],
-  JAL: [
-    { id: "jal1", name: "Centro Histórico de Guadalajara", lat: 20.6767, lng: -103.3475, media: "image", mediaSrc: null },
-    { id: "jal2", name: "Tequila Pueblo Mágico", lat: 20.8824, lng: -103.8369, media: "video", mediaSrc: null },
-    { id: "jal3", name: "Puerto Vallarta", lat: 20.6534, lng: -105.2253, media: "image", mediaSrc: null },
-    { id: "jal4", name: "Lago de Chapala", lat: 20.296, lng: -103.191, media: "image", mediaSrc: null },
-  ],
-  ROO: [
-    { id: "roo1", name: "Cancún Zona Hotelera", lat: 21.1619, lng: -86.8515, media: "image", mediaSrc: null },
-    { id: "roo2", name: "Tulum Ruinas", lat: 20.2144, lng: -87.4291, media: "video", mediaSrc: null },
-    { id: "roo3", name: "Playa del Carmen", lat: 20.6296, lng: -87.0739, media: "image", mediaSrc: null },
-    { id: "roo4", name: "Isla Mujeres", lat: 21.232, lng: -86.7312, media: "image", mediaSrc: null },
-    { id: "roo5", name: "Bacalar Laguna de 7 Colores", lat: 18.6813, lng: -88.3951, media: "video", mediaSrc: null },
-  ],
-  OAX: [
-    { id: "oax1", name: "Monte Albán", lat: 17.043, lng: -96.7676, media: "image", mediaSrc: null },
-    { id: "oax2", name: "Hierve el Agua", lat: 16.866, lng: -96.276, media: "video", mediaSrc: null },
-    { id: "oax3", name: "Puerto Escondido", lat: 15.8611, lng: -97.0725, media: "image", mediaSrc: null },
-    { id: "oax4", name: "Centro Histórico de Oaxaca", lat: 17.0614, lng: -96.7255, media: "image", mediaSrc: null },
-  ],
-  YUC: [
-    { id: "yuc1", name: "Chichén Itzá", lat: 20.6843, lng: -88.5678, media: "video", mediaSrc: null },
-    { id: "yuc2", name: "Mérida Centro", lat: 20.9674, lng: -89.5926, media: "image", mediaSrc: null },
-    { id: "yuc3", name: "Cenote Ik Kil", lat: 20.6622, lng: -88.5512, media: "image", mediaSrc: null },
-    { id: "yuc4", name: "Izamal Pueblo Mágico", lat: 20.9302, lng: -89.0172, media: "image", mediaSrc: null },
-  ],
-  NLE: [
-    { id: "nle1", name: "Parque Fundidora", lat: 25.678, lng: -100.285, media: "image", mediaSrc: null },
-    { id: "nle2", name: "Cerro de la Silla", lat: 25.6244, lng: -100.2265, media: "image", mediaSrc: null },
-    { id: "nle3", name: "Barrio Antiguo", lat: 25.6701, lng: -100.307, media: "video", mediaSrc: null },
-    { id: "nle4", name: "Grutas de García", lat: 25.8032, lng: -100.5558, media: "image", mediaSrc: null },
-  ],
-  GRO: [
-    { id: "gro1", name: "Acapulco La Quebrada", lat: 16.8385, lng: -99.9147, media: "video", mediaSrc: null },
-    { id: "gro2", name: "Ixtapa Zihuatanejo", lat: 17.6425, lng: -101.5518, media: "image", mediaSrc: null },
-    { id: "gro3", name: "Taxco Pueblo Mágico", lat: 18.5564, lng: -99.605, media: "image", mediaSrc: null },
-  ],
-  BCN: [
-    { id: "bcn1", name: "Valle de Guadalupe", lat: 32.0757, lng: -116.6123, media: "image", mediaSrc: null },
-    { id: "bcn2", name: "Ensenada Malecón", lat: 31.8667, lng: -116.5964, media: "image", mediaSrc: null },
-    { id: "bcn3", name: "La Bufadora", lat: 31.7181, lng: -116.7302, media: "video", mediaSrc: null },
-  ],
-  BCS: [
-    { id: "bcs1", name: "El Arco de Cabo San Lucas", lat: 22.876, lng: -109.882, media: "image", mediaSrc: null },
-    { id: "bcs2", name: "Balandra", lat: 24.3214, lng: -110.3238, media: "image", mediaSrc: null },
-    { id: "bcs3", name: "Todos Santos", lat: 23.4478, lng: -110.223, media: "video", mediaSrc: null },
-  ],
-  PUE: [
-    { id: "pue1", name: "Centro Histórico de Puebla", lat: 19.0414, lng: -98.1985, media: "image", mediaSrc: null },
-    { id: "pue2", name: "Cholula Pirámide", lat: 19.0586, lng: -98.3015, media: "video", mediaSrc: null },
-    { id: "pue3", name: "Cuetzalan", lat: 20.0346, lng: -97.5188, media: "image", mediaSrc: null },
-  ],
-  GUA: [
-    { id: "gua1", name: "Guanajuato Capital", lat: 21.019, lng: -101.2574, media: "image", mediaSrc: null },
-    { id: "gua2", name: "San Miguel de Allende", lat: 20.9144, lng: -100.7452, media: "image", mediaSrc: null },
-    { id: "gua3", name: "León Centro", lat: 21.1221, lng: -101.6821, media: "video", mediaSrc: null },
-  ],
-  MIC: [
-    { id: "mic1", name: "Pátzcuaro", lat: 19.516, lng: -101.609, media: "image", mediaSrc: null },
-    { id: "mic2", name: "Morelia Centro", lat: 19.7059, lng: -101.1949, media: "image", mediaSrc: null },
-    { id: "mic3", name: "Santuario Mariposa Monarca", lat: 19.5908, lng: -100.2529, media: "video", mediaSrc: null },
-  ],
-  CHP: [
-    { id: "chp1", name: "San Cristóbal de las Casas", lat: 16.737, lng: -92.6376, media: "image", mediaSrc: null },
-    { id: "chp2", name: "Cañón del Sumidero", lat: 16.8353, lng: -93.0816, media: "video", mediaSrc: null },
-    { id: "chp3", name: "Palenque", lat: 17.4838, lng: -92.0459, media: "image", mediaSrc: null },
-    { id: "chp4", name: "Cascadas de Agua Azul", lat: 17.2572, lng: -92.1139, media: "image", mediaSrc: null },
-  ],
-  SIN: [
-    { id: "sin1", name: "Mazatlán Malecón", lat: 23.2494, lng: -106.4111, media: "image", mediaSrc: null },
-    { id: "sin2", name: "El Fuerte Pueblo Mágico", lat: 26.4214, lng: -108.618, media: "video", mediaSrc: null },
-  ],
-  SON: [
-    { id: "son1", name: "Hermosillo Centro", lat: 29.0729, lng: -110.9559, media: "image", mediaSrc: null },
-    { id: "son2", name: "San Carlos Nuevo Guaymas", lat: 27.9683, lng: -111.0559, media: "image", mediaSrc: null },
-  ],
-  QUE: [
-    { id: "que1", name: "Centro Histórico de Querétaro", lat: 20.5888, lng: -100.3899, media: "image", mediaSrc: null },
-    { id: "que2", name: "Peña de Bernal", lat: 20.7482, lng: -99.9444, media: "video", mediaSrc: null },
-  ],
-  AGU: [
-    { id: "agu1", name: "Feria de San Marcos", lat: 21.8808, lng: -102.2943, media: "image", mediaSrc: null },
-  ],
-  CAM: [
-    { id: "cam1", name: "Calakmul", lat: 18.1056, lng: -89.8108, media: "video", mediaSrc: null },
-    { id: "cam2", name: "Campeche Centro", lat: 19.8454, lng: -90.5255, media: "image", mediaSrc: null },
-  ],
-  CHH: [
-    { id: "chh1", name: "Barrancas del Cobre", lat: 27.5079, lng: -108.3541, media: "video", mediaSrc: null },
-    { id: "chh2", name: "Creel", lat: 27.7547, lng: -107.635, media: "image", mediaSrc: null },
-  ],
-  COA: [
-    { id: "coa1", name: "Saltillo Centro", lat: 25.4232, lng: -100.9924, media: "image", mediaSrc: null },
-  ],
-  COL: [
-    { id: "col1", name: "Comala Pueblo Mágico", lat: 19.3319, lng: -103.7617, media: "image", mediaSrc: null },
-  ],
-  DUR: [
-    { id: "dur1", name: "Durango Centro", lat: 24.0277, lng: -104.6532, media: "image", mediaSrc: null },
-    { id: "dur2", name: "Puente de Ojuela", lat: 25.5903, lng: -105.3559, media: "video", mediaSrc: null },
-  ],
-  HID: [
-    { id: "hid1", name: "Prismas Basálticos", lat: 20.2527, lng: -98.5648, media: "image", mediaSrc: null },
-    { id: "hid2", name: "Real del Monte", lat: 20.1354, lng: -98.6742, media: "image", mediaSrc: null },
-  ],
-  MEX: [
-    { id: "mex1", name: "Teotihuacán", lat: 19.6925, lng: -98.8438, media: "video", mediaSrc: null },
-    { id: "mex2", name: "Valle de Bravo", lat: 19.1936, lng: -100.131, media: "image", mediaSrc: null },
-  ],
-  MOR: [
-    { id: "mor1", name: "Tepoztlán", lat: 18.9847, lng: -99.0995, media: "image", mediaSrc: null },
-    { id: "mor2", name: "Cuernavaca Palacio de Cortés", lat: 18.922, lng: -99.234, media: "image", mediaSrc: null },
-  ],
-  NAY: [
-    { id: "nay1", name: "Islas Marietas", lat: 20.6984, lng: -105.5727, media: "video", mediaSrc: null },
-    { id: "nay2", name: "Sayulita", lat: 20.8701, lng: -105.4418, media: "image", mediaSrc: null },
-  ],
-  SLP: [
-    { id: "slp1", name: "Huasteca Potosina", lat: 21.9884, lng: -99.0074, media: "video", mediaSrc: null },
-    { id: "slp2", name: "Real de Catorce", lat: 23.6893, lng: -100.8841, media: "image", mediaSrc: null },
-  ],
-  TAB: [
-    { id: "tab1", name: "La Venta Parque Museo", lat: 17.9912, lng: -92.9271, media: "image", mediaSrc: null },
-  ],
-  TAM: [
-    { id: "tam1", name: "Tampico Centro", lat: 22.2331, lng: -97.8611, media: "image", mediaSrc: null },
-  ],
-  TLA: [
-    { id: "tla1", name: "Cacaxtla", lat: 19.2573, lng: -98.3362, media: "image", mediaSrc: null },
-  ],
-  VER: [
-    { id: "ver1", name: "El Tajín", lat: 20.4469, lng: -97.378, media: "video", mediaSrc: null },
-    { id: "ver2", name: "Veracruz Puerto", lat: 19.1904, lng: -96.1533, media: "image", mediaSrc: null },
-    { id: "ver3", name: "Xalapa Centro", lat: 19.5438, lng: -96.9274, media: "image", mediaSrc: null },
-  ],
-  ZAC: [
-    { id: "zac1", name: "Zacatecas Centro", lat: 22.7709, lng: -102.5832, media: "image", mediaSrc: null },
-    { id: "zac2", name: "Mina El Edén", lat: 22.7727, lng: -102.5907, media: "video", mediaSrc: null },
-  ],
-};
+
 
 // MARCADORES
 const MARKER_ICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 36" width="28" height="40">
@@ -208,7 +68,239 @@ const USER_LOCATION_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 
 const MEXICO_BOUNDS = [[14.5, -118.5], [32.8, -86.5]];
 const MEXICO_CENTER = [23.6345, -102.5528];
 const DEFAULT_ZOOM = 5;
+const ICON_SIZE = [28, 40];
 
+
+
+// ─── Componente del mapa ───────────────────────────────────────────────────────
+function MapComponent({
+  L, mapReady, onMapReady, selectedState, statePlaces,
+  allFavoritePlaces, favorites, userLocation, showingFullMap,
+  createIcon, onStateClick, onPlaceClick, onShowingFullMapChange,
+}) {
+  const mapContainerRef = useRef(null);
+  const mapRef = useRef(null);
+  const markersLayerRef = useRef(null);
+  const favoritesLayerRef = useRef(null);
+  const labelsLayerRef = useRef(null);
+  const stateClickAreasRef = useRef(null);
+  const userMarkerRef = useRef(null);
+  const isAnimatingRef = useRef(false);
+  
+
+  // Inicializar mapa
+  useEffect(() => {
+    if (!mapReady || !L || !mapContainerRef.current || mapRef.current) return;
+
+    const map = L.map(mapContainerRef.current, {
+      center: MEXICO_CENTER,
+      zoom: DEFAULT_ZOOM,
+      zoomControl: false,
+      minZoom: 4,
+      maxZoom: 16,
+      maxBounds: MEXICO_BOUNDS,
+      maxBoundsViscosity: 0.8,
+    });
+
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
+      attribution: '© OpenStreetMap © CARTO',
+      subdomains: "abcd",
+      maxZoom: 19,
+    }).addTo(map);
+
+    markersLayerRef.current = L.layerGroup().addTo(map);
+    favoritesLayerRef.current = L.layerGroup().addTo(map);
+    labelsLayerRef.current = L.layerGroup().addTo(map);
+    stateClickAreasRef.current = L.layerGroup().addTo(map);
+
+    map.on("movestart", () => { isAnimatingRef.current = true; });
+    map.on("moveend", () => { isAnimatingRef.current = false; });
+
+    mapRef.current = map;
+    onMapReady(map);
+
+    return () => {
+      map.remove();
+      mapRef.current = null;
+    };
+  }, [mapReady, L]);
+
+  // labels y áreas de clic por estado
+  useEffect(() => {
+    if (!L || !labelsLayerRef.current || !stateClickAreasRef.current) return;
+
+    labelsLayerRef.current.clearLayers();
+    stateClickAreasRef.current.clearLayers();
+
+    MEXICO_STATES.forEach((state) => {
+      const label = L.divIcon({
+        html: `<div style="font-family:'Alata',sans-serif;font-size:11px;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,0.8),0 0 8px rgba(110,37,148,0.6);white-space:nowrap;pointer-events:none;font-weight:400;letter-spacing:0.05em;">${state.name}</div>`,
+        className: "",
+        iconAnchor: [40, 10],
+      });
+      L.marker(state.center, { icon: label, interactive: false }).addTo(labelsLayerRef.current);
+
+      const [[minLat, minLng], [maxLat, maxLng]] = state.bounds;
+      const rect = L.rectangle([[minLat, minLng], [maxLat, maxLng]], {
+        color: "transparent",
+        fillColor: "#6E2594",
+        fillOpacity: 0,
+        weight: 0,
+        className: "state-clickable",
+      });
+
+      rect.on("mouseover", () => rect.setStyle({ fillOpacity: 0.2, fillColor: "#3BCEAC" }));
+      rect.on("mouseout", () => rect.setStyle({ fillOpacity: 0 }));
+      rect.on("click", () => onStateClick(state.id));
+
+      stateClickAreasRef.current.addLayer(rect);
+    });
+  }, [L, onStateClick]);
+
+  // mostrar segun zoom
+  useEffect(() => {
+    if (!mapRef.current || !labelsLayerRef.current || !stateClickAreasRef.current) return;
+
+    if (selectedState) {
+      if (mapRef.current.hasLayer(labelsLayerRef.current)) labelsLayerRef.current.remove();
+      if (mapRef.current.hasLayer(stateClickAreasRef.current)) stateClickAreasRef.current.remove();
+    } else {
+      if (!mapRef.current.hasLayer(labelsLayerRef.current)) labelsLayerRef.current.addTo(mapRef.current);
+      if (!mapRef.current.hasLayer(stateClickAreasRef.current)) stateClickAreasRef.current.addTo(mapRef.current);
+    }
+  }, [selectedState]);
+
+  // Referencia para acceder a los marcadores por place.id
+  const markerMapRef = useRef({});
+
+  // marcadores dentro del estado solo se recrean cuando cambia el estado seleccionado
+  useEffect(() => {
+    if (!mapRef.current || !L || !markersLayerRef.current) return;
+
+    markersLayerRef.current.clearLayers();
+    markerMapRef.current = {};
+    if (!selectedState) return;
+
+    statePlaces.forEach((place) => {
+      const icon = L.divIcon({
+        html: MARKER_ICON_SVG,
+        className: "",
+        iconSize: ICON_SIZE,
+        iconAnchor: [ICON_SIZE[0] / 2, ICON_SIZE[1]],
+        popupAnchor: [0, -ICON_SIZE[1]],
+      });
+
+      const marker = L.marker([place.lat, place.lng], { icon });
+
+      marker.bindTooltip(place.name, {
+        direction: "top",
+        offset: [0, -ICON_SIZE[1]],
+        className: "custom-tooltip",
+      });
+
+      marker.on("click", () => onPlaceClick(place));
+      markersLayerRef.current.addLayer(marker);
+      markerMapRef.current[place.id] = marker;
+    });
+  }, [L, selectedState, statePlaces, onPlaceClick]);
+
+  
+
+  // Actualiza solo el ícono cuando cambian los favoritos, no mueve, no recrea marcadores
+  useEffect(() => {
+    if (!L || !selectedState) return;
+
+    statePlaces.forEach((place) => {
+      const marker = markerMapRef.current[place.id];
+      if (!marker) return;
+
+      const isFav = favorites[place.id];
+      const icon = L.divIcon({
+        html: isFav ? FAVORITE_ICON_SVG : MARKER_ICON_SVG,
+        className: "",
+        iconSize: ICON_SIZE,
+        iconAnchor: [ICON_SIZE[0] / 2, ICON_SIZE[1]],
+        popupAnchor: [0, -ICON_SIZE[1]],
+      });
+      marker.setIcon(icon);
+    });
+  }, [L, favorites, selectedState, statePlaces]);
+
+  // favoritos vista mapa república, espera a que el mapa termine de animarse
+  useEffect(() => {
+    if (!mapRef.current || !L || !favoritesLayerRef.current) return;
+
+    favoritesLayerRef.current.clearLayers();
+    if (selectedState) return;
+
+    const placeFavoriteMarkers = () => {
+      if (!favoritesLayerRef.current) return;
+      favoritesLayerRef.current.clearLayers();
+
+      allFavoritePlaces.forEach((place) => {
+        const icon = L.divIcon({
+          html: FAVORITE_ICON_SVG,
+          className: "",
+          iconSize: ICON_SIZE,
+          iconAnchor: [ICON_SIZE[0] / 2, ICON_SIZE[1]],
+          popupAnchor: [0, -ICON_SIZE[1]],
+        });
+
+        const marker = L.marker([place.lat, place.lng], { icon });
+
+        marker.bindTooltip(`⭐ ${place.name}`, {
+          direction: "top",
+          offset: [0, -ICON_SIZE[1]],
+          className: "custom-tooltip",
+        });
+
+        marker.on("click", () => onPlaceClick(place));
+        favoritesLayerRef.current.addLayer(marker);
+      });
+    };
+
+    if (isAnimatingRef.current) {
+      mapRef.current.once("moveend", placeFavoriteMarkers);
+    } else {
+      placeFavoriteMarkers();
+    }
+
+    return () => {
+      mapRef.current?.off("moveend", placeFavoriteMarkers);
+    };
+  }, [L, selectedState, allFavoritePlaces, onPlaceClick]);
+
+  // ubicacion del usuario
+  useEffect(() => {
+    if (!mapRef.current || !L || !userLocation) return;
+
+    if (userMarkerRef.current) userMarkerRef.current.remove();
+
+    const icon = L.divIcon({
+      html: USER_LOCATION_SVG,
+      className: "",
+      iconSize: [22, 22],
+      iconAnchor: [11, 11],
+    });
+
+    userMarkerRef.current = L.marker([userLocation.lat, userLocation.lng], { icon })
+      .bindTooltip("Tu ubicación", {
+        direction: "top",
+        offset: [0, -15],
+        className: "custom-tooltip",
+      })
+      .addTo(mapRef.current);
+  }, [L, userLocation]);
+
+  return (
+    <div
+      ref={mapContainerRef}
+      className="w-full h-full absolute inset-0"
+    />
+  );
+}
+
+// ─── Componente principal ──────────────────────────────────────────────────────
 export default function MexicoInteractiveMap() {
   const [mapReady, setMapReady] = useState(false);
   const [selectedState, setSelectedState] = useState(null);
@@ -221,6 +313,14 @@ export default function MexicoInteractiveMap() {
   const popupRef = useRef(null);
   const [L, setL] = useState(null);
 
+  // ── Estado para los places de la BD ──
+  const [allPlaces, setAllPlaces] = useState({});       // { stateCode: [place, ...] }
+  const [placesLoading, setPlacesLoading] = useState(true);
+  const [placesError, setPlacesError] = useState(null);
+
+  const user = useMemo(() => getUser(), []);
+
+  // ── Cargar Leaflet ──
   useEffect(() => {
     if (!document.querySelector('link[href*="leaflet"]')) {
       const link = document.createElement("link");
@@ -249,6 +349,40 @@ export default function MexicoInteractiveMap() {
     loadLibs();
   }, []);
 
+  // ── Cargar places desde la API PHP ──
+  useEffect(() => {
+    const fetchPlaces = async () => {
+      try {
+        setPlacesLoading(true);
+        setPlacesError(null);
+        const res = await fetch(`${BASE_URL}/places.php`);
+        if (!res.ok) throw new Error(`Error HTTP ${res.status}`);
+        const json = await res.json();
+
+        if (!json.success) throw new Error(json.error || "Error desconocido");
+
+        // Agrupar por stateCode para mantener la misma estructura que antes
+        const grouped = {};
+        json.data.forEach((place) => {
+          const code = place.stateCode;
+          if (!code) return;
+          if (!grouped[code]) grouped[code] = [];
+          grouped[code].push(place);
+        });
+
+        setAllPlaces(grouped);
+      } catch (err) {
+        console.error("Error cargando places:", err);
+        setPlacesError(err.message);
+      } finally {
+        setPlacesLoading(false);
+      }
+    };
+
+    fetchPlaces();
+  }, []);
+
+  // ── Geolocalización ──
   useEffect(() => {
     if (!navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition(
@@ -266,27 +400,80 @@ export default function MexicoInteractiveMap() {
     );
   }, []);
 
-  const toggleFavorite = useCallback((placeId) => {
+/*   const toggleFavorite = useCallback((placeId) => {
     setFavorites((prev) => {
       const next = { ...prev };
       if (next[placeId]) delete next[placeId];
       else next[placeId] = true;
       return next;
     });
-  }, []);
+  }, []); */
 
+  useEffect(() => {
+  if (!user) return;
+  const fetchFavorites = async () => {
+    try {
+      const res = await fetch(`${BASE_URL}/favorites.php?id_user=${user.id_user}`);
+      const json = await res.json();
+      if (!json.success) return;
+      const favMap = {};
+      json.data.forEach(f => { favMap[f.id] = true; });
+      setFavorites(favMap);
+    } catch (err) {
+      console.error("Error cargando favoritos:", err);
+    }
+  };
+  fetchFavorites();
+}, [user]);
+
+const toggleFavorite = useCallback(async (placeId) => {
+  if (!user) return;
+  const isFav = favorites[placeId];
+  setFavorites((prev) => {
+    const next = { ...prev };
+    if (next[placeId]) delete next[placeId];
+    else next[placeId] = true;
+    return next;
+  });
+  try {
+    if (isFav) {
+      await fetch(`${BASE_URL}/favorites.php`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id_user: user.id_user, id_place: placeId }),
+      });
+    } else {
+      await fetch(`${BASE_URL}/favorites.php`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id_user: user.id_user, id_place: placeId, alias: "" }),
+      });
+    }
+  } catch (err) {
+    console.error("Error al actualizar favorito:", err);
+    setFavorites((prev) => {
+      const next = { ...prev };
+      if (isFav) next[placeId] = true;
+      else delete next[placeId];
+      return next;
+    });
+  }
+}, [favorites, user]);
+
+  // Todos los favoritos (para mostrar en vista república)
   const allFavoritePlaces = useMemo(() => {
     const favs = [];
-    Object.entries(TOURIST_PLACES).forEach(([stateId, places]) => {
+    Object.entries(allPlaces).forEach(([stateId, places]) => {
       places.forEach((p) => { if (favorites[p.id]) favs.push({ ...p, stateId }); });
     });
     return favs;
-  }, [favorites]);
+  }, [favorites, allPlaces]);
 
+  // Places del estado seleccionado
   const statePlaces = useMemo(() => {
     if (!selectedState) return [];
-    return TOURIST_PLACES[selectedState] || [];
-  }, [selectedState]);
+    return allPlaces[selectedState] || [];
+  }, [selectedState, allPlaces]);
 
   const createIcon = useCallback(
     (svgString, size) => {
@@ -329,7 +516,7 @@ export default function MexicoInteractiveMap() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [popupPlace]);
 
-  // Cargando mapa
+  // ── Pantalla de carga (mapa o places) ──
   if (!mapReady || !L) {
     return (
       <div className="flex flex-col min-h-screen">
@@ -345,13 +532,14 @@ export default function MexicoInteractiveMap() {
     );
   }
 
-  // mapa
+  // ── Render principal ──
   return (
     <div className="min-h-screen bg-[#D5E8EB]">
       <Navbar/>
 
       <div className="relative w-full flex-1 font-['Alata',sans-serif]" style={{ minHeight: "calc(100vh - 84px)", isolation: "isolate" }}>
 
+        {/* Banner de estado seleccionado */}
         {selectedState && (
           <div
             className="absolute top-4 left-1/2 -translate-x-1/2 z-[1000] px-6 py-2.5 rounded-full"
@@ -360,6 +548,21 @@ export default function MexicoInteractiveMap() {
             <p className="text-white text-sm tracking-wide">
               {MEXICO_STATES.find((s) => s.id === selectedState)?.name}
             </p>
+          </div>
+        )}
+
+        {/* Indicador de carga de places */}
+        {placesLoading && (
+          <div className="absolute top-4 right-4 z-[1001] flex items-center gap-2 px-4 py-2 rounded-full bg-white/90 shadow-md">
+            <div className="w-4 h-4 border-2 border-[#FF0063] border-t-transparent rounded-full animate-spin" />
+            <span className="text-xs text-[#6E2594]">Cargando lugares...</span>
+          </div>
+        )}
+
+        {/* Indicador de error de places */}
+        {placesError && (
+          <div className="absolute top-4 right-4 z-[1001] flex items-center gap-2 px-4 py-2 rounded-full bg-red-100 shadow-md border border-red-300">
+            <span className="text-xs text-red-600">⚠ Error al cargar lugares</span>
           </div>
         )}
 
@@ -424,6 +627,23 @@ export default function MexicoInteractiveMap() {
           </div>
         )}
 
+        {/* Panel vacío cuando el estado no tiene lugares en la BD */}
+        {selectedState && !placesLoading && statePlaces.length === 0 && (
+          <div
+            className="absolute top-0 right-0 bottom-0 z-[999] w-72 flex items-center justify-center"
+            style={{
+              background: "linear-gradient(180deg, rgba(255,248,231,0.97), rgba(255,248,231,0.99))",
+              borderLeft: "3px solid #3BCEAC",
+            }}
+          >
+            <div className="text-center px-4">
+              <p className="text-4xl mb-2">🗺️</p>
+              <p className="text-[#6E2594] text-sm font-medium">Sin lugares registrados</p>
+              <p className="text-gray-400 text-xs mt-1">Agrega lugares en el panel de administración</p>
+            </div>
+          </div>
+        )}
+
         {/*botones inferiores*/}
         <div className="absolute bottom-0 left-0 right-0 z-[1000]">
           <div className="flex items-center justify-between px-4 pb-2 pt-6">
@@ -456,9 +676,9 @@ export default function MexicoInteractiveMap() {
                   onClick={() => handleStateClick(state.id)}
                   className="shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 hover:scale-105"
                   style={{
-                    background: selectedState === state.id ? "#FF0063" : TOURIST_PLACES[state.id] ? "rgba(110,37,148,0.1)" : "rgba(0,0,0,0.05)",
-                    border: selectedState === state.id ? "2px solid #FF0063" : TOURIST_PLACES[state.id] ? "1px solid rgba(110,37,148,0.25)" : "1px solid rgba(0,0,0,0.1)",
-                    color: selectedState === state.id ? "#fff" : TOURIST_PLACES[state.id] ? "#6E2594" : "#9ca3af",
+                    background: selectedState === state.id ? "#FF0063" : allPlaces[state.id]?.length > 0 ? "rgba(110,37,148,0.1)" : "rgba(0,0,0,0.05)",
+                    border: selectedState === state.id ? "2px solid #FF0063" : allPlaces[state.id]?.length > 0 ? "1px solid rgba(110,37,148,0.25)" : "1px solid rgba(0,0,0,0.1)",
+                    color: selectedState === state.id ? "#fff" : allPlaces[state.id]?.length > 0 ? "#6E2594" : "#9ca3af",
                   }}
                 >
                   {state.name}
@@ -472,29 +692,55 @@ export default function MexicoInteractiveMap() {
         {popupPlace && (
           <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
             <div ref={popupRef} className="w-full max-w-md rounded-2xl overflow-hidden animate-popup" style={{ background: "#FFF8E7", border: "3px solid #3BCEAC", boxShadow: "0 25px 60px rgba(0,0,0,0.3)" }}>
-              {/* Media placeholder */}
+              {/* Media real desde la BD */}
               <div className="relative w-full h-48 flex items-center justify-center overflow-hidden" style={{ background: "linear-gradient(135deg, #6E2594 0%, #8B30BB 50%, #FF0063 100%)" }}>
-                {popupPlace.media === "video" ? (
-                  <div className="relative flex flex-col items-center gap-3">
-                    <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,0.2)", border: "2px solid rgba(255,255,255,0.4)" }}>
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="#fff" stroke="none"><polygon points="8,5 19,12 8,19" /></svg>
-                    </div>
-                    <span className="text-white/70 text-xs">Video placeholder</span>
-                  </div>
+                {popupPlace.mediaSrc ? (
+                  popupPlace.media === "video" ? (
+                    <video
+                      src={popupPlace.mediaSrc}
+                      className="w-full h-full object-cover"
+                      controls
+                      autoPlay
+                      muted
+                    />
+                  ) : (
+                    <img
+                      src={popupPlace.mediaSrc}
+                      alt={popupPlace.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => { e.target.style.display = "none"; }}
+                    />
+                  )
                 ) : (
+                  // Fallback cuando no hay media
                   <div className="relative flex flex-col items-center gap-3">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><path d="M21 15l-5-5L5 21" /></svg>
-                    <span className="text-white/70 text-xs">Imagen placeholder</span>
+                    {popupPlace.media === "video" ? (
+                      <>
+                        <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,0.2)", border: "2px solid rgba(255,255,255,0.4)" }}>
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="#fff" stroke="none"><polygon points="8,5 19,12 8,19" /></svg>
+                        </div>
+                        <span className="text-white/70 text-xs">Sin video disponible</span>
+                      </>
+                    ) : (
+                      <>
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><path d="M21 15l-5-5L5 21" /></svg>
+                        <span className="text-white/70 text-xs">Sin imagen disponible</span>
+                      </>
+                    )}
                   </div>
                 )}
                 <button onClick={() => setPopupPlace(null)} className="absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center transition-all hover:scale-110" style={{ background: "rgba(0,0,0,0.3)", backdropFilter: "blur(10px)" }}>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
                 </button>
               </div>
+
               {/* contenido */}
               <div className="p-5">
                 <h2 className="text-[#6E2594] text-xl font-bold mb-1">{popupPlace.name}</h2>
-                <p className="text-gray-500 text-sm mb-4">{MEXICO_STATES.find((s) => s.id === selectedState)?.name || "México"}</p>
+                <p className="text-gray-500 text-sm mb-1">{MEXICO_STATES.find((s) => s.id === selectedState)?.name || "México"}</p>
+                {popupPlace.storeHours && (
+                  <p className="text-gray-400 text-xs mb-4">🕐 {popupPlace.storeHours}</p>
+                )}
                 <div className="flex gap-3">
                   <button
                     onClick={() => toggleFavorite(popupPlace.id)}
@@ -516,6 +762,7 @@ export default function MexicoInteractiveMap() {
             </div>
           </div>
         )}
+
         <style>{`
           @keyframes popup-in {
             from { transform: scale(0.9) translateY(20px); opacity: 0; }
@@ -526,7 +773,7 @@ export default function MexicoInteractiveMap() {
           .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
           .leaflet-control-zoom { display: none !important; }
           .state-clickable { cursor: pointer !important; }
-          .leaflet-container { background: #1a1a2e !important; }
+          .leaflet-container { background: #e8e0d8 !important; }
           .pulse-marker-svg { animation: pulse 2s ease-in-out infinite; transform-origin: center 75%; }
           @keyframes pulse { 0%,100%{transform:scale(1);opacity:1;} 50%{transform:scale(1.15);opacity:0.85;} }
           .custom-tooltip {
@@ -538,239 +785,8 @@ export default function MexicoInteractiveMap() {
           }
           .custom-tooltip::before { border-top-color: rgba(110,37,148,0.92) !important; }
         `}</style>
-
-
       </div>
-      <Footer />
+      <Footer/>
     </div>
-  );
-}
-
-function MapComponent({
-  L,
-  mapReady,
-  onMapReady,
-  selectedState,
-  statePlaces,
-  allFavoritePlaces,
-  favorites,
-  userLocation,
-  showingFullMap,
-  createIcon,
-  onStateClick,
-  onPlaceClick,
-  onShowingFullMapChange
-}) {
-  const mapRef = useRef(null);
-  const mapContainerRef = useRef(null);
-  const markersLayerRef = useRef(null);
-  const favoritesLayerRef = useRef(null);
-  const labelsLayerRef = useRef(null);
-  const userMarkerRef = useRef(null);
-  const stateClickAreasRef = useRef(null);
-  const isAnimatingRef = useRef(false);
-
-  const ICON_SIZE = [28, 40];
-
-  useEffect(() => {
-    if (!L || !mapContainerRef.current || mapRef.current) return;
-
-    const map = L.map(mapContainerRef.current, {
-      center: MEXICO_CENTER,
-      zoom: DEFAULT_ZOOM,
-      minZoom: 5,
-      maxZoom: 18,
-      maxBounds: L.latLngBounds(MEXICO_BOUNDS),
-      maxBoundsViscosity: 1.0,
-      zoomControl: false,
-      attributionControl: false,
-    });
-
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
-    subdomains: "abcd",
-    maxZoom: 19,
-    }).addTo(map);
-
-    markersLayerRef.current = L.layerGroup().addTo(map);
-    favoritesLayerRef.current = L.layerGroup().addTo(map);
-    labelsLayerRef.current = L.layerGroup().addTo(map);
-    stateClickAreasRef.current = L.layerGroup().addTo(map);
-
-    map.on("movestart", () => { isAnimatingRef.current = true; });
-    map.on("moveend", () => { isAnimatingRef.current = false; });
-
-    mapRef.current = map;
-    onMapReady(map);
-
-    return () => {
-      map.remove();
-      mapRef.current = null;
-    };
-  }, [L]);
-
-  // area para darle click al estado
-  useEffect(() => {
-    if (!mapRef.current || !L || !stateClickAreasRef.current || !labelsLayerRef.current) return;
-
-    stateClickAreasRef.current.clearLayers();
-    labelsLayerRef.current.clearLayers();
-
-    MEXICO_STATES.forEach((state) => {
-      const rect = L.rectangle(state.bounds, {
-        color: "transparent",
-        fillColor: "rgba(59,206,172,0.05)",
-        fillOpacity: 0,
-        weight: 0,
-        className: "state-clickable",
-        interactive: true,
-      });
-
-      rect.on("mouseover", () => rect.setStyle({ fillOpacity: 0.2, fillColor: "#3BCEAC" }));
-      rect.on("mouseout", () => rect.setStyle({ fillOpacity: 0 }));
-      rect.on("click", () => onStateClick(state.id));
-
-      stateClickAreasRef.current.addLayer(rect);
-    });
-  }, [L, onStateClick]);
-
-  // mostrar segun zoom
-  useEffect(() => {
-    if (!mapRef.current || !labelsLayerRef.current || !stateClickAreasRef.current) return;
-
-    if (selectedState) {
-      if (mapRef.current.hasLayer(labelsLayerRef.current)) labelsLayerRef.current.remove();
-      if (mapRef.current.hasLayer(stateClickAreasRef.current)) stateClickAreasRef.current.remove();
-    } else {
-      if (!mapRef.current.hasLayer(labelsLayerRef.current)) labelsLayerRef.current.addTo(mapRef.current);
-      if (!mapRef.current.hasLayer(stateClickAreasRef.current)) stateClickAreasRef.current.addTo(mapRef.current);
-    }
-  }, [selectedState]);
-
-  // Referencia para acceder a los marcadores por place.id
-  const markerMapRef = useRef({});
-
-  // marcadores dentro del estado solo se recrean cuando cambia el estado seleccionado
-  useEffect(() => {
-    if (!mapRef.current || !L || !markersLayerRef.current) return;
-
-    markersLayerRef.current.clearLayers();
-    markerMapRef.current = {};
-    if (!selectedState) return;
-
-    statePlaces.forEach((place) => {
-      const icon = L.divIcon({
-        html: MARKER_ICON_SVG,
-        className: "",
-        iconSize: ICON_SIZE,
-        iconAnchor: [ICON_SIZE[0] / 2, ICON_SIZE[1]],
-        popupAnchor: [0, -ICON_SIZE[1]],
-      });
-
-      const marker = L.marker([place.lat, place.lng], { icon });
-
-      marker.bindTooltip(place.name, {
-        direction: "top",
-        offset: [0, -ICON_SIZE[1]],
-        className: "custom-tooltip",
-      });
-
-      marker.on("click", () => onPlaceClick(place));
-      markersLayerRef.current.addLayer(marker);
-      markerMapRef.current[place.id] = marker;
-    });
-  }, [L, selectedState, statePlaces, onPlaceClick]);
-
-  // Actualiza solo el ícono cuando cambian los favoritos,no mueve, no recrea marcadores
-  useEffect(() => {
-    if (!L || !selectedState) return;
-
-    statePlaces.forEach((place) => {
-      const marker = markerMapRef.current[place.id];
-      if (!marker) return;
-
-      const isFav = favorites[place.id];
-      const icon = L.divIcon({
-        html: isFav ? FAVORITE_ICON_SVG : MARKER_ICON_SVG,
-        className: "",
-        iconSize: ICON_SIZE,
-        iconAnchor: [ICON_SIZE[0] / 2, ICON_SIZE[1]],
-        popupAnchor: [0, -ICON_SIZE[1]],
-      });
-      marker.setIcon(icon);
-    });
-  }, [L, favorites, selectedState, statePlaces]);
-
-  // favoritos vista mapa república, espera a que el mapa termine de animarse
-  useEffect(() => {
-    if (!mapRef.current || !L || !favoritesLayerRef.current) return;
-
-    favoritesLayerRef.current.clearLayers();
-    if (selectedState) return;
-
-    const placeFavoriteMarkers = () => {
-      if (!favoritesLayerRef.current) return;
-      favoritesLayerRef.current.clearLayers();
-
-      allFavoritePlaces.forEach((place) => {
-        const icon = L.divIcon({
-          html: FAVORITE_ICON_SVG,
-          className: "",
-          iconSize: ICON_SIZE,
-          iconAnchor: [ICON_SIZE[0] / 2, ICON_SIZE[1]],
-          popupAnchor: [0, -ICON_SIZE[1]],
-        });
-
-        const marker = L.marker([place.lat, place.lng], { icon });
-
-        marker.bindTooltip(`⭐ ${place.name}`, {
-          direction: "top",
-          offset: [0, -ICON_SIZE[1]],
-          className: "custom-tooltip",
-        });
-
-        marker.on("click", () => onPlaceClick(place));
-        favoritesLayerRef.current.addLayer(marker);
-      });
-    };
-
-    // Si el mapa está animando (flyTo de regreso), esperar a que termine
-    if (isAnimatingRef.current) {
-      mapRef.current.once("moveend", placeFavoriteMarkers);
-    } else {
-      placeFavoriteMarkers();
-    }
-
-    return () => {
-      mapRef.current?.off("moveend", placeFavoriteMarkers);
-    };
-  }, [L, selectedState, allFavoritePlaces, onPlaceClick]);
-
-  // ubicacion del usuario
-  useEffect(() => {
-    if (!mapRef.current || !L || !userLocation) return;
-
-    if (userMarkerRef.current) userMarkerRef.current.remove();
-
-    const icon = L.divIcon({
-      html: USER_LOCATION_SVG,
-      className: "",
-      iconSize: [22, 22],
-      iconAnchor: [11, 11],
-    });
-
-    userMarkerRef.current = L.marker([userLocation.lat, userLocation.lng], { icon })
-      .bindTooltip("Tu ubicación", {
-        direction: "top",
-        offset: [0, -15],
-        className: "custom-tooltip",
-      })
-      .addTo(mapRef.current);
-  }, [L, userLocation]);
-
-  return (
-    <div
-      ref={mapContainerRef}
-      className="w-full h-full absolute inset-0"
-    />
   );
 }

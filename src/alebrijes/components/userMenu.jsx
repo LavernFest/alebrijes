@@ -199,7 +199,7 @@ export default function UserMenu({ isAdminPage = false }) {
 
                 {/* Mis favoritos */}
                 <button
-                  onClick={() => { setOpen(false); navigate("/favoritos"); }}
+                  onClick={() => { setOpen(false); navigate("/map"); }}
                   className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-[#FF0063] hover:bg-[#FF0063]/10 hover:border-[#FF0063]/20 border border-transparent transition-all duration-200 font-['Alata',sans-serif]"
                 >
                   <span className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-[#FF0063]/10">
