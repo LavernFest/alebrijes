@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import Navbar from "../components/navbar";
 import Footer from "../components/footer";
 
@@ -319,6 +320,22 @@ export default function MexicoInteractiveMap() {
   const [placesError, setPlacesError] = useState(null);
 
   const user = useMemo(() => getUser(), []);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Abrir panel de favoritos si viene desde userMenu con ?panel=favoritos
+  const [showFavoritesPanel, setShowFavoritesPanel] = useState(false);
+  const arrivedViaFavoritesRef = useRef(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get("panel") === "favoritos") {
+      setShowFavoritesPanel(true);
+      arrivedViaFavoritesRef.current = true;
+      // Limpiar el query param de la URL sin recargar
+      navigate("/map", { replace: true });
+    }
+  }, [location.search]);
 
   // ── Cargar Leaflet ──
   useEffect(() => {
@@ -387,6 +404,8 @@ export default function MexicoInteractiveMap() {
     if (!navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition(
       (pos) => {
+        // Si el usuario llegó desde favoritos, no mostrar su ubicación ni hacer flyTo
+        if (arrivedViaFavoritesRef.current) return;
         const { latitude, longitude } = pos.coords;
         setUserLocation({ lat: latitude, lng: longitude });
         const foundState = MEXICO_STATES.find((s) => {
@@ -427,7 +446,10 @@ export default function MexicoInteractiveMap() {
 }, [user]);
 
 const toggleFavorite = useCallback(async (placeId) => {
-  if (!user) return;
+  if (!user) {
+    navigate("/login");
+    return;
+  }
   const isFav = favorites[placeId];
   setFavorites((prev) => {
     const next = { ...prev };
@@ -458,7 +480,7 @@ const toggleFavorite = useCallback(async (placeId) => {
       return next;
     });
   }
-}, [favorites, user]);
+}, [favorites, user, navigate]);
 
   // Todos los favoritos (para mostrar en vista república)
   const allFavoritePlaces = useMemo(() => {
@@ -488,6 +510,7 @@ const toggleFavorite = useCallback(async (placeId) => {
       setSelectedState(stateId);
       setPopupPlace(null);
       setShowingFullMap(false);
+      setShowFavoritesPanel(false);
       const state = MEXICO_STATES.find((s) => s.id === stateId);
       if (state && mapInstance) mapInstance.flyTo(state.center, 8, { duration: 0.8 });
     },
@@ -498,6 +521,7 @@ const toggleFavorite = useCallback(async (placeId) => {
     setSelectedState(null);
     setPopupPlace(null);
     setShowingFullMap(true);
+    if (arrivedViaFavoritesRef.current) setShowFavoritesPanel(true);
     if (mapInstance) mapInstance.flyTo(MEXICO_CENTER, DEFAULT_ZOOM, { duration: 0.8 });
   }, [mapInstance]);
 
@@ -644,11 +668,113 @@ const toggleFavorite = useCallback(async (placeId) => {
           </div>
         )}
 
+        {/* Panel de Mis Favoritos (desde userMenu) */}
+        {showFavoritesPanel && !selectedState && (
+          <div
+            className="absolute top-0 right-0 bottom-0 z-[999] w-72 overflow-y-auto"
+            style={{
+              background: "linear-gradient(180deg, rgba(255,248,231,0.97), rgba(255,248,231,0.99))",
+              borderLeft: "3px solid #FFE74C",
+              boxShadow: "-4px 0 20px rgba(0,0,0,0.1)",
+            }}
+          >
+            <div className="p-4 pb-40">
+              {/* Header */}
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="#FFE74C" stroke="#6E2594" strokeWidth="1.5">
+                    <polygon points="12,2 15,9 22,9 17,14 18.5,21 12,17 5.5,21 7,14 2,9 9,9" />
+                  </svg>
+                  <h3 className="text-[#6E2594] text-sm font-bold tracking-wide">Mis Favoritos</h3>
+                </div>
+                <button
+                  onClick={() => setShowFavoritesPanel(false)}
+                  className="w-7 h-7 rounded-full flex items-center justify-center transition-all hover:scale-110"
+                  style={{ background: "rgba(110,37,148,0.1)" }}
+                >
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6E2594" strokeWidth="2.5" strokeLinecap="round">
+                    <path d="M18 6L6 18M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Sin favoritos */}
+              {allFavoritePlaces.length === 0 && (
+                <div className="flex flex-col items-center py-10 gap-3">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#6E2594" strokeWidth="1" opacity="0.25">
+                    <polygon points="12,2 15,9 22,9 17,14 18.5,21 12,17 5.5,21 7,14 2,9 9,9" />
+                  </svg>
+                  <p className="text-[#6E2594] text-sm font-medium text-center">Aún no tienes favoritos</p>
+                  <p className="text-gray-400 text-xs text-center">Explora el mapa y guarda los lugares que más te gusten</p>
+                </div>
+              )}
+
+              {/* Lista agrupada por estado */}
+              {allFavoritePlaces.length > 0 && (
+                <div className="flex flex-col gap-4">
+                  {/* Agrupar por estado */}
+                  {Object.entries(
+                    allFavoritePlaces.reduce((acc, place) => {
+                      const stateName = MEXICO_STATES.find((s) => s.id === place.stateId)?.name || place.stateId;
+                      if (!acc[stateName]) acc[stateName] = { stateId: place.stateId, places: [] };
+                      acc[stateName].places.push(place);
+                      return acc;
+                    }, {})
+                  ).map(([stateName, { stateId, places }]) => (
+                    <div key={stateId}>
+                      {/* Encabezado de estado */}
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="flex-1 h-px" style={{ background: "rgba(110,37,148,0.15)" }} />
+                        <span className="text-[10px] font-bold text-[#6E2594]/60 uppercase tracking-widest shrink-0">{stateName}</span>
+                        <div className="flex-1 h-px" style={{ background: "rgba(110,37,148,0.15)" }} />
+                      </div>
+                      {/* Lugares del estado */}
+                      <div className="flex flex-col gap-2">
+                        {places.map((place) => (
+                          <button
+                            key={place.id}
+                            onClick={() => {
+                              setShowFavoritesPanel(false);
+                              setPopupPlace(place);
+                              setShowingFullMap(false);
+                              if (mapInstance) mapInstance.flyTo([place.lat, place.lng], 12, { duration: 0.8 });
+                            }}
+                            className="group flex items-center gap-3 p-3 rounded-xl text-left transition-all duration-200 hover:scale-[1.02]"
+                            style={{
+                              background: popupPlace?.id === place.id ? "rgba(255,231,76,0.15)" : "rgba(255,255,255,0.6)",
+                              border: popupPlace?.id === place.id ? "2px solid #FFE74C" : "1px solid rgba(255,231,76,0.4)",
+                            }}
+                          >
+                            <div
+                              className="shrink-0 w-10 h-10 rounded-lg flex items-center justify-center"
+                              style={{ background: "linear-gradient(135deg, #FFE74C, #FFA414)" }}
+                            >
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="#FFE74C" stroke="#6E2594" strokeWidth="1">
+                                <polygon points="12,2 15,9 22,9 17,14 18.5,21 12,17 5.5,21 7,14 2,9 9,9" />
+                              </svg>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-gray-800 text-xs font-medium truncate">{place.name}</p>
+                              <p className="text-gray-500 text-[10px] mt-0.5">
+                                {place.media === "video" ? "🎬 Video" : "🖼 Imagen"} • Toca para ver
+                              </p>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/*botones inferiores*/}
         <div className="absolute bottom-0 left-0 right-0 z-[1000]">
           <div className="flex items-center justify-between px-4 pb-2 pt-6">
             <div className="flex items-center gap-2">
-              {selectedState && (
+              {(selectedState || !showingFullMap) && (
                 <button onClick={handleBackToMap} className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm transition-all duration-200 hover:scale-105" style={{ background: "#6E2594", color: "#fff", boxShadow: "0 2px 10px rgba(110,37,148,0.3)" }}>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
                   Ver República
