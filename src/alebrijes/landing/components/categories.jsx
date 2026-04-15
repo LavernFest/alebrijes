@@ -48,13 +48,13 @@ export default function Categories() {
 
       <div className="max-w-7xl mx-auto">
         {/* Título + botón Explorar más */}
-        <div className="relative flex items-center justify-center mb-12">
+        <div className="flex flex-col items-center gap-3 mb-12 sm:flex-row sm:justify-center sm:relative">
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#FF0063] text-center font-['Lobster_Two',cursive] italic">
             Lugares destacados
           </h2>
           <button
             onClick={() => navigate('/map')}
-            className="absolute right-0 text-sm font-semibold text-gray-700 hover:text-[#FF0063] transition-colors duration-200"
+            className="text-sm font-semibold text-gray-700 hover:text-[#FF0063] transition-colors duration-200 sm:absolute sm:right-0"
           >
             Explorar más →
           </button>
