@@ -13,6 +13,7 @@ import RoutesTester from './Routestester';
 import Nosotros from './alebrijes/components/alebrijesnosotros';
 import UserProfile from './alebrijes/perfil/userProfile';
 import Galeria from './alebrijes/components/galeria';
+import Contacto from './alebrijes/components/alebrijescontactanos';
 
 function AdminRoute({ children }) {
   const user = JSON.parse(localStorage.getItem("user") || "null");
@@ -32,6 +33,8 @@ export default function App() {
         <Route path="/nosotros" element={<Nosotros />} />
         <Route path="/perfil-edit" element={<UserProfile />} />
         <Route path="/galeria" element={<Galeria />} />
+        <Route path="/contactanos" element={<Contacto />} />
+        
 
 
         {/* Rutas protegidas admin */}
