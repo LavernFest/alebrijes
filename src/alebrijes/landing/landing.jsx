@@ -78,8 +78,8 @@ export default function LandingPage() {
       {/* Espacio */}
       <div className="bg-[#FFFFFF] py-8" />
 
-      <VideoPlayer />
-      <AudioPlayer />
+      {/* <VideoPlayer />
+      <AudioPlayer /> */}
 
       <Footer />
     </div>
