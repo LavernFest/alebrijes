@@ -2,20 +2,40 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CategoryCard from './category-card';
 
+const API_BASE   = 'http://localhost/Alebrijes_BackEnd_PHP/alebrijes/api';
+const MEDIA_BASE = 'http://localhost/Alebrijes_BackEnd_PHP/alebrijes';
+
 export default function Categories() {
   const navigate = useNavigate();
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [itemsPerPage, setItemsPerPage] = useState(window.innerWidth < 640 ? 2 : 3);
+  const [currentIndex,  setCurrentIndex]  = useState(0);
+  const [itemsPerPage,  setItemsPerPage]  = useState(window.innerWidth < 640 ? 2 : 3);
+  const [categories,    setCategories]    = useState([]);
+  const [loading,       setLoading]       = useState(true);
 
-  const categories = [
-    { id: 1, title: 'Nevado de Toluca', image: '/assets/NevadoToluca.jpg' },
-    { id: 2, title: 'El arco de Cabo San Lucas', image: '/assets/arcolucas.jpg' },
-    { id: 3, title: 'Museo regional de Queretaro', image: '/assets/museoqueretaro.jpg' },
-    { id: 4, title: 'Piramide de Teotihuacan', image: '/assets/piramide.jpg' },
-    { id: 5, title: 'Playa Miramar', image: '/assets/playaMiramarTamaulipas.jpg' },
-    { id: 6, title: 'Centro Histórico de Campeche', image: '/assets/centroCampeche.jpg' },
-  ];
+  // Cargar lugares desde la API
+  useEffect(() => {
+    const fetchPlaces = async () => {
+      try {
+        const res  = await fetch(`${API_BASE}/places.php`);
+        const json = await res.json();
+        const list = json.success ? json.data : (Array.isArray(json) ? json : []);
 
+        // Solo lugares con imagen y mezclar aleatoriamente para variedad
+        const conImagen = list
+          .filter(p => p.imageUrl && p.imageUrl.trim() !== '')
+          .sort(() => Math.random() - 0.5);
+
+        setCategories(conImagen);
+      } catch (err) {
+        console.error('Error cargando places para carrusel:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPlaces();
+  }, []);
+
+  // Resetear índice si cambia el número de items por página
   useEffect(() => {
     const updateItems = () => {
       setItemsPerPage(window.innerWidth < 640 ? 2 : 3);
@@ -25,17 +45,22 @@ export default function Categories() {
     return () => window.removeEventListener('resize', updateItems);
   }, []);
 
-  const totalPages = Math.ceil(categories.length / itemsPerPage);
-  const handlePrev = () => setCurrentIndex((prev) => (prev === 0 ? totalPages - 1 : prev - 1));
-  const handleNext = () => setCurrentIndex((prev) => (prev === totalPages - 1 ? 0 : prev + 1));
-
+  const totalPages       = Math.ceil(categories.length / itemsPerPage);
+  const handlePrev       = () => setCurrentIndex((prev) => (prev === 0 ? totalPages - 1 : prev - 1));
+  const handleNext       = () => setCurrentIndex((prev) => (prev === totalPages - 1 ? 0 : prev + 1));
   const visibleCategories = categories.slice(
     currentIndex * itemsPerPage,
     currentIndex * itemsPerPage + itemsPerPage
   );
 
-  const handleCategoryClick = (categoryId) => {
-    console.log('Categoría seleccionada:', categoryId);
+  const handleCategoryClick = (placeId) => {
+    navigate(`/map?placeId=${placeId}`);
+  };
+
+  // Construir URL de imagen igual que en galería
+  const buildImageUrl = (imageUrl) => {
+    if (!imageUrl) return null;
+    return imageUrl.startsWith('http') ? imageUrl : `${MEDIA_BASE}/${imageUrl}`;
   };
 
   return (
@@ -47,7 +72,6 @@ export default function Categories() {
       </div>
 
       <div className="max-w-7xl mx-auto">
-        {/* Título + botón Explorar más */}
         <div className="flex flex-col items-center gap-3 mb-12 sm:flex-row sm:justify-center sm:relative">
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#FF0063] text-center font-['Lobster_Two',cursive] italic">
             Lugares destacados
@@ -60,25 +84,60 @@ export default function Categories() {
           </button>
         </div>
 
+        {/* Estado de carga */}
+        {loading && (
+          <div className="flex justify-center items-center py-16 gap-3">
+            <div className="w-8 h-8 border-4 border-[#FF0063] border-t-transparent rounded-full animate-spin" />
+            <p className="text-gray-400 text-sm">Cargando lugares...</p>
+          </div>
+        )}
+
         {/* Carrusel */}
-        <div className="flex items-center gap-4">
-          <button onClick={handlePrev} className="text-2xl text-[#FF0063] font-bold px-2 hover:scale-110 transition-transform">
-            ‹
-          </button>
-          <div className={`grid gap-4 flex-1 ${itemsPerPage === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
-            {visibleCategories.map((category) => (
-              <CategoryCard
-                key={category.id}
-                image={category.image}
-                title={category.title}
-                onClick={() => handleCategoryClick(category.id)}
+        {!loading && categories.length > 0 && (
+          <div className="flex items-center gap-4">
+            <button
+              onClick={handlePrev}
+              className="text-2xl text-[#FF0063] font-bold px-2 hover:scale-110 transition-transform"
+            >
+              ‹
+            </button>
+
+            <div className={`grid gap-4 flex-1 ${itemsPerPage === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
+              {visibleCategories.map((place) => (
+                <CategoryCard
+                  key={place.id}
+                  image={buildImageUrl(place.imageUrl)}
+                  title={place.name}
+                  onClick={() => handleCategoryClick(place.id)}
+                />
+              ))}
+            </div>
+
+            <button
+              onClick={handleNext}
+              className="text-2xl text-[#FF0063] font-bold px-2 hover:scale-110 transition-transform"
+            >
+              ›
+            </button>
+          </div>
+        )}
+
+        {/* Indicador de página */}
+        {!loading && totalPages > 1 && (
+          <div className="flex justify-center gap-2 mt-6">
+            {Array.from({ length: totalPages }).map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrentIndex(i)}
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                  i === currentIndex
+                    ? 'bg-[#FF0063] w-4'
+                    : 'bg-gray-300 hover:bg-gray-400'
+                }`}
               />
             ))}
           </div>
-          <button onClick={handleNext} className="text-2xl text-[#FF0063] font-bold px-2 hover:scale-110 transition-transform">
-            ›
-          </button>
-        </div>
+        )}
       </div>
 
       <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-none rotate-180">
