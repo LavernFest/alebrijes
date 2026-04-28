@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 
 export default function VideoPlayer() {
   const videoRef = useRef(null);
@@ -6,37 +6,97 @@ export default function VideoPlayer() {
   const [current, setCurrent] = useState(0);
   const [duration, setDuration] = useState(0);
   const [muted, setMuted] = useState(false);
+  const isDragging = useRef(false);
+  const wasPlayingBeforeDrag = useRef(false);
+  const progressBarRef = useRef(null);
 
-  // ── Pon aquí la URL o ruta de tu video ──
-  const VIDEO_SRC = "/assets/palacio.mp4";
+  const VIDEO_SRC = "/assets/pal.mp4";
 
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
-    v.addEventListener("timeupdate", () => setCurrent(v.currentTime));
-    v.addEventListener("loadedmetadata", () => setDuration(v.duration));
-    v.addEventListener("ended", () => setPlaying(false));
+
+    const onTimeUpdate = () => {
+      if (!isDragging.current) setCurrent(v.currentTime);
+    };
+    const onLoadedMetadata = () => setDuration(v.duration);
+    const onEnded = () => setPlaying(false);
+    const onPlay = () => setPlaying(true);
+    const onPause = () => setPlaying(false);
+
+    v.addEventListener("timeupdate", onTimeUpdate);
+    v.addEventListener("loadedmetadata", onLoadedMetadata);
+    v.addEventListener("ended", onEnded);
+    v.addEventListener("play", onPlay);
+    v.addEventListener("pause", onPause);
+
+    return () => {
+      v.removeEventListener("timeupdate", onTimeUpdate);
+      v.removeEventListener("loadedmetadata", onLoadedMetadata);
+      v.removeEventListener("ended", onEnded);
+      v.removeEventListener("play", onPlay);
+      v.removeEventListener("pause", onPause);
+    };
   }, []);
+
+  // Calcula la posición en la barra y aplica el seek
+  const applySeek = useCallback((e) => {
+    const bar = progressBarRef.current;
+    const v = videoRef.current;
+    if (!bar || !v || !duration) return;
+    const rect = bar.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    const newTime = ratio * duration;
+    v.currentTime = newTime;
+    setCurrent(newTime);
+  }, [duration]);
+
+  const onPointerDown = useCallback((e) => {
+    const v = videoRef.current;
+    if (!v) return;
+    isDragging.current = true;
+    wasPlayingBeforeDrag.current = !v.paused;
+    v.pause();
+    progressBarRef.current.setPointerCapture(e.pointerId);
+    applySeek(e);
+  }, [applySeek]);
+
+  const onPointerMove = useCallback((e) => {
+    if (!isDragging.current) return;
+    applySeek(e);
+  }, [applySeek]);
+
+  const onPointerUp = useCallback((e) => {
+    if (!isDragging.current) return;
+    isDragging.current = false;
+    applySeek(e);
+    const v = videoRef.current;
+    if (wasPlayingBeforeDrag.current && v) {
+      v.play().catch(() => {});
+    }
+  }, [applySeek]);
 
   const togglePlay = () => {
     const v = videoRef.current;
-    if (playing) { v.pause(); setPlaying(false); }
-    else { v.play(); setPlaying(true); }
+    if (!v) return;
+    if (v.paused) {
+      v.play().catch(() => {});
+    } else {
+      v.pause();
+    }
   };
 
   const skip = (seg) => {
     const v = videoRef.current;
+    if (!v) return;
     v.currentTime = Math.max(0, Math.min(duration, v.currentTime + seg));
   };
 
-  const seek = (e) => {
-    const bar = e.currentTarget;
-    const ratio = (e.clientX - bar.getBoundingClientRect().left) / bar.offsetWidth;
-    videoRef.current.currentTime = ratio * duration;
-  };
-
   const toggleMute = () => {
-    videoRef.current.muted = !muted;
+    const v = videoRef.current;
+    if (!v) return;
+    v.muted = !muted;
     setMuted(!muted);
   };
 
@@ -55,7 +115,6 @@ export default function VideoPlayer() {
       fontFamily: "'Alata', sans-serif",
     }}>
 
-      {/* ── Video (solo el video, sin nada encima) ── */}
       <div style={{ width: "100%", height: 220, background: "#000" }}>
         <video
           ref={videoRef}
@@ -67,40 +126,49 @@ export default function VideoPlayer() {
         />
       </div>
 
-      {/* ── Controles ABAJO del video ── */}
       <div style={{
         background: "#1a0a2e",
         padding: "10px 16px 14px",
         display: "flex", flexDirection: "column", gap: 8,
       }}>
 
-        {/* Barra de progreso */}
-        <div onClick={seek} style={{
-          height: 5, borderRadius: 3, background: "rgba(255,255,255,0.2)",
-          cursor: "pointer", position: "relative",
-        }}>
+        {/* Barra de progreso — con pointer events para drag */}
+        <div
+          ref={progressBarRef}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          onPointerCancel={onPointerUp}
+          style={{
+            height: 16, display: "flex", alignItems: "center",
+            cursor: "pointer", touchAction: "none", userSelect: "none",
+          }}
+        >
           <div style={{
-            position: "absolute", left: 0, top: 0, bottom: 0,
-            width: `${pct}%`, borderRadius: 3, background: "#3BCEAC",
-          }} />
-          <div style={{
-            position: "absolute", top: "50%", left: `${pct}%`,
-            transform: "translate(-50%,-50%)",
-            width: 13, height: 13, borderRadius: "50%",
-            background: "#fff", boxShadow: "0 0 6px #3BCEAC",
-          }} />
+            position: "relative", width: "100%", height: 5,
+            borderRadius: 3, background: "rgba(255,255,255,0.2)",
+          }}>
+            <div style={{
+              position: "absolute", left: 0, top: 0, bottom: 0,
+              width: `${pct}%`, borderRadius: 3, background: "#3BCEAC",
+            }} />
+            <div style={{
+              position: "absolute", top: "50%", left: `${pct}%`,
+              transform: "translate(-50%,-50%)",
+              width: 13, height: 13, borderRadius: "50%",
+              background: "#fff", boxShadow: "0 0 6px #3BCEAC",
+              pointerEvents: "none",
+            }} />
+          </div>
         </div>
 
-        {/* Tiempos */}
         <div style={{ display: "flex", justifyContent: "space-between", color: "rgba(255,255,255,0.5)", fontSize: 10 }}>
           <span>{fmt(current)}</span>
           <span>{fmt(duration)}</span>
         </div>
 
-        {/* Botones */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 14 }}>
 
-          {/* Atrás 10s */}
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
             <button onClick={() => skip(-10)} style={btn("rgba(255,255,255,0.12)", 38)}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="#fff">
@@ -110,7 +178,6 @@ export default function VideoPlayer() {
             <span style={{ color: "rgba(255,255,255,0.4)", fontSize: 9 }}>10s</span>
           </div>
 
-          {/* Play / Pause */}
           <button onClick={togglePlay} style={btn("linear-gradient(135deg,#FF0063,#6E2594)", 52, "0 4px 18px rgba(255,0,99,0.45)")}>
             {playing
               ? <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><rect x="5" y="4" width="4" height="16" rx="1.5"/><rect x="15" y="4" width="4" height="16" rx="1.5"/></svg>
@@ -118,7 +185,6 @@ export default function VideoPlayer() {
             }
           </button>
 
-          {/* Adelante 10s */}
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
             <button onClick={() => skip(10)} style={btn("rgba(255,255,255,0.12)", 38)}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="#fff">
@@ -128,7 +194,6 @@ export default function VideoPlayer() {
             <span style={{ color: "rgba(255,255,255,0.4)", fontSize: 9 }}>10s</span>
           </div>
 
-          {/* Mute */}
           <button onClick={toggleMute} style={{ ...btn("rgba(255,255,255,0.08)", 34), marginLeft: "auto" }}>
             {muted
               ? <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round">
@@ -145,7 +210,6 @@ export default function VideoPlayer() {
         </div>
       </div>
 
-      {/* ── Info del lugar ── */}
       <div style={{ padding: "14px 20px 18px" }}>
         <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: "#6E2594" }}>Cosmovitral Jardín Botánico</h2>
         <p style={{ margin: "3px 0 0", fontSize: 12, color: "#999" }}>Estado de México</p>

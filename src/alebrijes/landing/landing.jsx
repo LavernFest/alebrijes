@@ -5,7 +5,6 @@ import Categories from './components/categories';
 import Footer from '../components/footer';
 import GalerySection from './components/galerysection';
 import VideoPlayer from './components/videoplayer';
-import AudioPlayer from './components/audioplayer';
 import { Link } from 'react-router-dom';
 
 export default function LandingPage() {
@@ -78,8 +77,8 @@ export default function LandingPage() {
       {/* Espacio */}
       <div className="bg-[#FFFFFF] py-8" />
 
-      {/* <VideoPlayer />
-      <AudioPlayer /> */}
+      {/* <VideoPlayer />*/}
+      <VideoPlayer />
 
       <Footer />
     </div>
